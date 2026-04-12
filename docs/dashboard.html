@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>claude-mem-plugin dashboard</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; line-height: 1.5; }
+    pre { background: #f5f5f5; padding: 1rem; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>claude-mem-plugin</h1>
+  <p>This dashboard renders <code>docs/execution-status.json</code>.</p>
+  <pre id="status">Loading...</pre>
+  <script>
+    fetch('./execution-status.json')
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        document.getElementById('status').textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(function (error) {
+        document.getElementById('status').textContent = String(error);
+      });
+  </script>
+</body>
+</html>

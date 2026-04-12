@@ -1,0 +1,19 @@
+{
+  "name": "claude-mem-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cross-CLI integration layer for claude-mem.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests",
+    "install:codex": "node installers/codex/install.js",
+    "uninstall:codex": "node installers/codex/uninstall.js",
+    "install:claude": "node installers/claude/install.js",
+    "uninstall:claude": "node installers/claude/uninstall.js",
+    "install:copilot": "node installers/copilot/install.js",
+    "uninstall:copilot": "node installers/copilot/uninstall.js"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "project": "claude-mem-plugin",
+  "task": "Bootstrap package skeleton",
+  "status": "in_progress",
+  "owner": "local workspace agent",
+  "updated": "2026-04-12",
+  "activePhase": "Task 1",
+  "blockers": [],
+  "recentCommits": []
+}
