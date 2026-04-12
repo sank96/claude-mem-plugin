@@ -1,0 +1,8 @@
+# Codex MCP template block for claude-mem-plugin
+provider = "codex"
+adapter = "codex"
+runtime_policy = "hook-driven"
+session_start = "adapters/codex/hooks/session-start.js"
+post_tool_use = "adapters/codex/hooks/post-tool-use.js"
+stop = "adapters/codex/hooks/stop.js"
+session_end = "adapters/codex/hooks/session-end.js"
