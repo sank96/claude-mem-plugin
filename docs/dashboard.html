@@ -32,7 +32,7 @@
       line-height: 1.45;
     }
     .shell {
-      max-width: 1320px;
+      max-width: 1080px;
       margin: 0 auto;
       padding: 32px 20px 40px;
     }
@@ -47,29 +47,45 @@
     h1, h2, h3, p { margin: 0; }
     h1 { font-size: 32px; letter-spacing: -0.03em; }
     .subtle { color: var(--muted); }
-    .grid {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: 1.8fr 1fr;
-    }
     .stack {
       display: grid;
-      gap: 8px;
+      gap: 12px;
     }
-    .card {
+    details.card {
       background: linear-gradient(180deg, var(--panel), var(--panel-soft));
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 16px;
+      padding: 0;
       box-shadow: 0 12px 28px rgba(2, 6, 23, 0.3);
       backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::after {
+      content: "+";
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
+    }
+    details[open] summary::after { content: "−"; }
+    .card-body {
+      padding: 0 18px 18px;
     }
     .card h2 {
       font-size: 14px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       color: var(--muted);
-      margin-bottom: 12px;
+      margin: 0;
     }
     .badge {
       display: inline-flex;
@@ -125,7 +141,7 @@
       letter-spacing: 0.08em;
     }
     .task-group {
-      margin-top: 18px;
+      margin-top: 16px;
     }
     .task-group:first-child {
       margin-top: 0;
@@ -134,10 +150,8 @@
       font-size: 16px;
       margin: 0 0 10px;
     }
-    .task-note {
-      color: var(--muted);
-    }
-    .agent-list {
+    .task-note { color: var(--muted); }
+    .agent-list, .simple-list {
       display: grid;
       gap: 10px;
     }
@@ -159,13 +173,14 @@
       padding: 0.15rem 0.35rem;
       border-radius: 6px;
     }
-    .meta-grid {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      margin-top: 16px;
-    }
     .muted { color: var(--muted); }
+    .section-note {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
   </style>
 </head>
 <body>
@@ -174,7 +189,7 @@
       <div>
         <p class="tiny">Local execution dashboard</p>
         <h1>claude-mem-plugin</h1>
-        <p class="subtle">Task board and spawned agents from <code>docs/execution-status.json</code>. A local-file fallback is embedded below, so the page still renders without a server.</p>
+        <p class="subtle">Task-first summary from <code>docs/execution-status.json</code> with a no-server fallback embedded for local file use.</p>
       </div>
       <div class="stack" style="align-items:flex-end;">
         <span id="status-badge" class="badge idle">Loading</span>
@@ -182,29 +197,72 @@
       </div>
     </div>
 
-    <section class="card">
-      <h2>Task Board</h2>
-      <div id="task-board"></div>
-    </section>
+    <div class="stack">
+      <details class="card" open>
+        <summary>
+          <div>
+            <h2>Task board</h2>
+            <div class="tiny">Planned, current, and completed work in plan order.</div>
+          </div>
+          <span id="task-count" class="badge info">Loading</span>
+        </summary>
+        <div class="card-body">
+          <div id="task-board"></div>
+        </div>
+      </details>
 
-    <div class="meta-grid">
-      <section class="card">
-        <h2>Spawned Agents</h2>
-        <div class="agent-list" id="spawned-agents"></div>
-      </section>
-      <section class="card">
-        <h2>Review / Queue</h2>
-        <div class="stack" id="review-phase"></div>
-        <div class="stack" id="queue-summary" style="margin-top:14px;"></div>
-      </section>
-      <section class="card">
-        <h2>Recent Commits</h2>
-        <div class="stack" id="recent-commits"></div>
-      </section>
-      <section class="card">
-        <h2>Blockers</h2>
-        <div class="stack" id="blockers"></div>
-      </section>
+      <details class="card" open>
+        <summary>
+          <div>
+            <h2>Spawned agents</h2>
+            <div class="tiny">Who is dispatched, what they handle, and their runtime status.</div>
+          </div>
+          <span id="agent-count" class="badge info">Loading</span>
+        </summary>
+        <div class="card-body">
+          <div class="agent-list" id="spawned-agents"></div>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary>
+          <div>
+            <h2>Review queue</h2>
+            <div class="tiny">Current review phase and queue pressure.</div>
+          </div>
+          <span id="queue-badge" class="badge idle">Loading</span>
+        </summary>
+        <div class="card-body">
+          <div class="simple-list" id="review-phase"></div>
+          <div class="simple-list" id="queue-summary" style="margin-top:12px;"></div>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary>
+          <div>
+            <h2>Recent commits</h2>
+            <div class="tiny">Latest child-repo changes surfaced for context.</div>
+          </div>
+          <span id="commit-count" class="badge idle">Loading</span>
+        </summary>
+        <div class="card-body">
+          <div class="simple-list" id="recent-commits"></div>
+        </div>
+      </details>
+
+      <details class="card">
+        <summary>
+          <div>
+            <h2>Blockers</h2>
+            <div class="tiny">Open or resolved issues that affect current work.</div>
+          </div>
+          <span id="blocker-count" class="badge idle">Loading</span>
+        </summary>
+        <div class="card-body">
+          <div class="simple-list" id="blockers"></div>
+        </div>
+      </details>
     </div>
 
     <div class="footer">
@@ -212,6 +270,7 @@
       <span>Polling every 15 seconds with a no-server fallback</span>
     </div>
   </div>
+
   <script id="status-fallback" type="application/json">
   {
     "project": "claude-mem-plugin",
@@ -302,6 +361,11 @@
     ],
     "recentCommits": [
       {
+        "sha": "54db68b41cce1a6e4a2d75580a5f56974beeaaed",
+        "message": "docs: simplify task 1 dashboard and remove installer surface",
+        "authoredAt": "2026-04-12T00:00:00+02:00"
+      },
+      {
         "sha": "f1d02652f6108b415f9d926545d6074f124e19dd",
         "message": "docs: add task board ownership to dashboard",
         "authoredAt": "2026-04-12T00:00:00+02:00"
@@ -309,6 +373,7 @@
     ]
   }
   </script>
+
   <script>
     function readFallbackData() {
       return JSON.parse(document.getElementById('status-fallback').textContent);
@@ -368,6 +433,7 @@
         renderTaskGroup('Current', board.current || []),
         renderTaskGroup('Completed', board.completed || [])
       ].join('');
+      document.getElementById('task-count').textContent = String((board.planned || []).length + (board.current || []).length + (board.completed || []).length) + ' tasks';
     }
 
     function renderAgents(data) {
@@ -386,9 +452,10 @@
           '</div>' +
         '</div>';
       }).join('') : '<div class="item"><div class="muted">No spawned agents</div></div>';
+      document.getElementById('agent-count').textContent = String(agents.length) + ' agents';
     }
 
-    function renderCompactSections(data) {
+    function renderReviewQueue(data) {
       document.getElementById('review-phase').innerHTML =
         '<div class="item">' +
           '<div class="row"><strong>' + escapeHtml(data.reviewPhase || 'none') + '</strong>' + badgeLabel(data.reviewPhase || 'idle', data.reviewPhase) + '</div>' +
@@ -397,13 +464,15 @@
 
       var queue = data.queueSummary || {};
       document.getElementById('queue-summary').innerHTML =
-        '<div class="item"><strong>Queue Summary</strong></div>' +
         '<div class="item"><div class="tiny">Total</div><div>' + Number(queue.total || 0) + '</div></div>' +
         '<div class="item"><div class="tiny">Active</div><div>' + Number(queue.active || 0) + '</div></div>' +
         '<div class="item"><div class="tiny">Blocked</div><div>' + Number(queue.blocked || 0) + '</div></div>' +
         '<div class="item"><div class="tiny">Queued</div><div>' + Number(queue.queued || 0) + '</div></div>' +
         '<div class="item"><div class="tiny">Overall Progress</div><div>' + Number(queue.progress || 0) + '%</div></div>';
+      document.getElementById('queue-badge').textContent = queue.progress ? String(queue.progress) + '% progress' : 'queued';
+    }
 
+    function renderSupplemental(data) {
       var commits = data.recentCommits || [];
       document.getElementById('recent-commits').innerHTML = commits.length ? commits.map(function (commit) {
         return '<div class="item">' +
@@ -412,6 +481,7 @@
           '<div class="tiny">' + escapeHtml(commit.authoredAt || '') + '</div>' +
         '</div>';
       }).join('') : '<div class="item"><div class="muted">No recent commits</div></div>';
+      document.getElementById('commit-count').textContent = String(commits.length) + ' commits';
 
       var blockers = data.blockers || [];
       document.getElementById('blockers').innerHTML = blockers.length ? blockers.map(function (blocker) {
@@ -419,6 +489,7 @@
           '<div class="row"><strong>' + escapeHtml(blocker.title || 'Blocker') + '</strong>' + badgeLabel(blocker.status || 'open', blocker.status) + '</div>' +
         '</div>';
       }).join('') : '<div class="item"><div class="muted">No blockers recorded</div></div>';
+      document.getElementById('blocker-count').textContent = String(blockers.length) + ' blockers';
     }
 
     function render(data) {
@@ -428,11 +499,8 @@
       document.getElementById('updated').textContent = 'Last updated: ' + (data.lastUpdated || 'unknown');
       renderTasks(data);
       renderAgents(data);
-      renderCompactSections(data);
-    }
-
-    function applyData(data) {
-      render(data);
+      renderReviewQueue(data);
+      renderSupplemental(data);
     }
 
     function refresh() {
@@ -441,13 +509,13 @@
           if (!response.ok) throw new Error('HTTP ' + response.status);
           return response.json();
         })
-        .then(applyData)
+        .then(render)
         .catch(function () {
-          applyData(readFallbackData());
+          render(readFallbackData());
         });
     }
 
-    applyData(readFallbackData());
+    render(readFallbackData());
     refresh();
     setInterval(refresh, 15000);
   </script>

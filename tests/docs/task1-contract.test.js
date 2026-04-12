@@ -65,14 +65,17 @@ test('dashboard renders a simplified task board and polls with fallback', () => 
   assert.match(dashboard, /no-server fallback/i);
   assert.match(dashboard, /Task Board/i);
   assert.match(dashboard, /Spawned Agents/i);
-  assert.match(dashboard, /Planned/i);
-  assert.match(dashboard, /Current/i);
-  assert.match(dashboard, /Completed/i);
+  assert.match(dashboard, /Review queue/i);
+  assert.match(dashboard, /Recent commits/i);
+  assert.match(dashboard, /Blockers/i);
+  assert.match(dashboard, /<details class="card"/i);
+  assert.match(dashboard, /<summary>/i);
   assert.match(dashboard, /done by/i);
   assert.match(dashboard, /in progress by/i);
   assert.match(dashboard, /nickname/i);
   assert.match(dashboard, /agent type/i);
   assert.match(dashboard, /responsibility/i);
+  assert.doesNotMatch(dashboard, /grid-template-columns:\s*repeat\(4/i);
   assert.match(dashboard, /status-badge/i);
 });
 
