@@ -30,6 +30,15 @@ test('session-start is directly invocable and validates provider input', async (
     () => sessionStartCommand('', { source: 'manual' }, { lifecycle, workerClient }),
     /provider/i
   );
+
+  const built = buildSessionStartCommand({ lifecycle, workerClient });
+  const builtResult = await built('codex', { source: 'manual' });
+  assert.deepEqual(builtResult, { continue: true });
+  assert.deepEqual(calls.at(-1), {
+    workerClient,
+    provider: 'codex',
+    payload: { source: 'manual' },
+  });
 });
 
 test('observe is directly invocable and validates payload input', async () => {
@@ -61,6 +70,15 @@ test('observe is directly invocable and validates payload input', async () => {
     () => observeCommand('codex', null, { lifecycle, workerClient }),
     /payload/i
   );
+
+  const built = buildObserveCommand({ lifecycle, workerClient });
+  const builtResult = await built('codex', { tool_name: 'Read' });
+  assert.deepEqual(builtResult, { continue: true, suppressOutput: true });
+  assert.deepEqual(calls.at(-1), {
+    workerClient,
+    provider: 'codex',
+    payload: { tool_name: 'Read' },
+  });
 });
 
 test('stop is directly invocable and validates provider input', async () => {
@@ -92,6 +110,15 @@ test('stop is directly invocable and validates provider input', async () => {
     () => stopCommand(undefined, { stop_hook_active: true }, { lifecycle, workerClient }),
     /provider/i
   );
+
+  const built = buildStopCommand({ lifecycle, workerClient });
+  const builtResult = await built('codex', { stop_hook_active: true });
+  assert.deepEqual(builtResult, { continue: false });
+  assert.deepEqual(calls.at(-1), {
+    workerClient,
+    provider: 'codex',
+    payload: { stop_hook_active: true },
+  });
 });
 
 test('session-end is provider-agnostic and directly invocable', async () => {
@@ -123,4 +150,12 @@ test('session-end is provider-agnostic and directly invocable', async () => {
     () => sessionEndCommand(null, { lifecycle, workerClient }),
     /payload/i
   );
+
+  const built = buildSessionEndCommand({ lifecycle, workerClient });
+  const builtResult = await built({ sessionId: 'session-123' });
+  assert.equal(builtResult, false);
+  assert.deepEqual(calls.at(-1), {
+    workerClient,
+    payload: { sessionId: 'session-123' },
+  });
 });
