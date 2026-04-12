@@ -20,13 +20,17 @@ The package supports two runtime modes:
 
 The important rule is that memory behavior still comes from `claude-mem`. This package only adapts how each CLI reaches it.
 
-## Repository layout
+## Planned package layout
 
-- `core/` holds shared runtime logic
-- `adapters/` holds CLI-specific integration code
-- `installers/` holds install and uninstall entrypoints
-- `skills/` holds the shared `claude-mem` skill
-- `docs/` holds operator docs and local dashboard files
+The current Task 1 repository does not yet contain the full implementation tree. The intended later structure is:
+
+- `core/` for shared runtime logic
+- `adapters/` for CLI-specific integration code
+- `installers/` for install and uninstall entrypoints
+- `skills/` for the shared `claude-mem` skill
+- `docs/` for operator docs and local dashboard files
+
+Task 1 only includes the package shell, docs, dashboard, and tests that describe that future structure.
 
 ## Installation
 
@@ -96,3 +100,4 @@ This package keeps the skill cross-CLI so operators do not have to learn a separ
 ## Status dashboard
 
 Open `docs/dashboard.html` in a browser to inspect `docs/execution-status.json`.
+If you open the file directly from disk and want the live status JSON, use the built-in file picker in the dashboard to load the current local `execution-status.json`.

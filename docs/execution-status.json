@@ -61,15 +61,6 @@
     "owner": "local workspace agent",
     "assignedTo": "workspace-agent"
   },
-  "activeWorkers": [
-    {
-      "name": "workspace-agent",
-      "status": "in_progress",
-      "task": "Task 1 doc and dashboard repair",
-      "progress": 72,
-      "assignedTo": "workspace-agent"
-    }
-  ],
   "spawnedAgents": [
     {
       "nickname": "workspace-agent",

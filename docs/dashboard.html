@@ -181,6 +181,41 @@
       flex-wrap: wrap;
       margin-bottom: 12px;
     }
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 14px 0 0;
+    }
+    .button, .file-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(148, 163, 184, 0.10);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .button:hover, .file-label:hover {
+      background: rgba(148, 163, 184, 0.16);
+    }
+    .button input {
+      display: none;
+    }
+    .source-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--accent);
+      background: rgba(56, 189, 248, 0.10);
+      color: var(--text);
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
@@ -190,6 +225,14 @@
         <p class="tiny">Local execution dashboard</p>
         <h1>claude-mem-plugin</h1>
         <p class="subtle">Task-first summary from <code>docs/execution-status.json</code> with a no-server fallback embedded for local file use.</p>
+        <div class="controls">
+          <label class="file-label" for="status-file">Load local JSON</label>
+          <input id="status-file" type="file" accept="application/json,.json" />
+          <span class="tiny">Use this when opening the page with <code>file://</code>.</span>
+        </div>
+        <div id="source-note" class="source-note">
+          Showing embedded starter snapshot. Load the current local <code>execution-status.json</code> to replace it.
+        </div>
       </div>
       <div class="stack" style="align-items:flex-end;">
         <span id="status-badge" class="badge idle">Loading</span>
@@ -503,6 +546,25 @@
       renderSupplemental(data);
     }
 
+    function setSourceNote(message) {
+      document.getElementById('source-note').textContent = message;
+    }
+
+    function loadLocalFile(file) {
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          var data = JSON.parse(String(reader.result || '{}'));
+          render(data);
+          setSourceNote('Loaded local status JSON from ' + file.name + '.');
+        } catch (error) {
+          setSourceNote('Could not parse ' + file.name + ': ' + (error.message || String(error)));
+        }
+      };
+      reader.readAsText(file);
+    }
+
     function refresh() {
       fetch('./execution-status.json?ts=' + Date.now(), { cache: 'no-store' })
         .then(function (response) {
@@ -512,12 +574,17 @@
         .then(render)
         .catch(function () {
           render(readFallbackData());
+          setSourceNote('Embedded starter snapshot is showing. Use the file picker to load the current local execution-status.json.');
         });
     }
 
     render(readFallbackData());
     refresh();
     setInterval(refresh, 15000);
+    document.getElementById('status-file').addEventListener('change', function (event) {
+      loadLocalFile(event.target.files && event.target.files[0]);
+      event.target.value = '';
+    });
   </script>
 </body>
 </html>
