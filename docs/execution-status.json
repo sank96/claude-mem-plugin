@@ -1,10 +1,44 @@
 {
   "project": "claude-mem-plugin",
-  "task": "Bootstrap package skeleton",
+  "task": "Task 1 doc and dashboard repair",
   "status": "in_progress",
   "owner": "local workspace agent",
-  "updated": "2026-04-12",
+  "lastUpdated": "2026-04-12T00:00:00+02:00",
+  "reviewPhase": "spec-review fixes in progress",
   "activePhase": "Task 1",
-  "blockers": [],
-  "recentCommits": []
+  "activeTask": {
+    "title": "Expand docs and dashboard for Task 1",
+    "status": "in_progress",
+    "progress": 72,
+    "owner": "local workspace agent"
+  },
+  "activeWorkers": [
+    {
+      "name": "workspace-agent",
+      "status": "in_progress",
+      "task": "Task 1 doc and dashboard repair",
+      "progress": 72
+    }
+  ],
+  "queueSummary": {
+    "total": 1,
+    "active": 1,
+    "blocked": 0,
+    "queued": 0,
+    "completed": 0,
+    "progress": 72
+  },
+  "blockers": [
+    {
+      "title": "Spec-review findings need to be reflected in the docs and dashboard",
+      "status": "resolved"
+    }
+  ],
+  "recentCommits": [
+    {
+      "sha": "f4c945e050f848d5628c31401ccadb2892375a08",
+      "message": "feat: scaffold package and docs skeleton",
+      "authoredAt": "2026-04-12T23:00:00+02:00"
+    }
+  ]
 }

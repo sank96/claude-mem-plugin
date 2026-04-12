@@ -19,5 +19,5 @@ test('package metadata is minimally valid', () => {
   assert.equal(pkg.name, 'claude-mem-plugin');
   assert.equal(pkg.private, true);
   assert.equal(pkg.engines.node, '>=18');
-  assert.equal(pkg.scripts.test, 'node --test tests');
+  assert.equal(pkg.scripts.test, 'node --test tests/package/package-metadata.test.js tests/docs/task1-contract.test.js');
 });

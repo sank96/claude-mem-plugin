@@ -5,23 +5,330 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>claude-mem-plugin dashboard</title>
   <style>
-    body { font-family: system-ui, sans-serif; margin: 2rem; line-height: 1.5; }
-    pre { background: #f5f5f5; padding: 1rem; overflow: auto; }
+    :root {
+      color-scheme: light;
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.82);
+      --panel-soft: rgba(30, 41, 59, 0.82);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.22);
+      --accent: #38bdf8;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --idle: #64748b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.24), transparent 28%),
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 22%),
+        linear-gradient(180deg, #020617 0%, var(--bg) 100%);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 20px 40px;
+    }
+    .header {
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: end;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 32px; letter-spacing: -0.03em; }
+    .subtle { color: var(--muted); }
+    .status-row, .grid, .list {
+      display: grid;
+      gap: 16px;
+    }
+    .status-row {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      margin-bottom: 16px;
+    }
+    .grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-soft));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 12px 28px rgba(2, 6, 23, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    .card h2 {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .metric {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+    .badge.good { color: var(--good); background: rgba(34, 197, 94, 0.12); }
+    .badge.warn { color: var(--warn); background: rgba(245, 158, 11, 0.12); }
+    .badge.bad { color: var(--bad); background: rgba(239, 68, 68, 0.12); }
+    .badge.idle { color: var(--idle); background: rgba(100, 116, 139, 0.12); }
+    .badge.info { color: var(--accent); background: rgba(56, 189, 248, 0.12); }
+    .stack {
+      display: grid;
+      gap: 8px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .item-list {
+      display: grid;
+      gap: 10px;
+    }
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(2, 6, 23, 0.16);
+    }
+    .item strong { display: block; margin-bottom: 4px; }
+    .bar {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.16);
+      overflow: hidden;
+    }
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #22c55e);
+    }
+    .muted { color: var(--muted); }
+    .footer {
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .tiny {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    code {
+      background: rgba(148, 163, 184, 0.12);
+      padding: 0.15rem 0.35rem;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
-  <h1>claude-mem-plugin</h1>
-  <p>This dashboard renders <code>docs/execution-status.json</code>.</p>
-  <pre id="status">Loading...</pre>
+  <div class="shell">
+    <div class="header">
+      <div>
+        <p class="tiny">Local execution dashboard</p>
+        <h1>claude-mem-plugin</h1>
+        <p class="subtle">Live state from <code>docs/execution-status.json</code> with auto-refresh polling.</p>
+      </div>
+      <div class="stack" style="align-items:flex-end;">
+        <span id="status-badge" class="badge idle">Loading</span>
+        <span id="updated" class="tiny">Waiting for data...</span>
+      </div>
+    </div>
+
+    <div class="status-row" id="status-row"></div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Active Task</h2>
+        <div class="stack" id="active-task"></div>
+      </section>
+      <section class="card">
+        <h2>Review Phase</h2>
+        <div class="stack" id="review-phase"></div>
+      </section>
+      <section class="card">
+        <h2>Queue Summary</h2>
+        <div class="stack" id="queue-summary"></div>
+      </section>
+      <section class="card">
+        <h2>Active Workers</h2>
+        <div class="item-list" id="active-workers"></div>
+      </section>
+      <section class="card">
+        <h2>Blockers</h2>
+        <div class="item-list" id="blockers"></div>
+      </section>
+      <section class="card">
+        <h2>Recent Commits</h2>
+        <div class="item-list" id="recent-commits"></div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <span id="project">Project: claude-mem-plugin</span>
+      <span>Polling every 15 seconds</span>
+    </div>
+  </div>
   <script>
-    fetch('./execution-status.json')
-      .then(function (response) { return response.json(); })
-      .then(function (data) {
-        document.getElementById('status').textContent = JSON.stringify(data, null, 2);
-      })
-      .catch(function (error) {
-        document.getElementById('status').textContent = String(error);
-      });
+    var lastRenderAt = null;
+
+    function badgeClass(status) {
+      var value = String(status || '').toLowerCase();
+      if (value.includes('block')) return 'badge bad';
+      if (value.includes('review')) return 'badge warn';
+      if (value.includes('complete') || value.includes('done') || value.includes('resolved')) return 'badge good';
+      if (value.includes('progress') || value.includes('active') || value.includes('in_')) return 'badge info';
+      return 'badge idle';
+    }
+
+    function badgeLabel(text, status) {
+      return '<span class="' + badgeClass(status) + '">' + text + '</span>';
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatCommit(commit) {
+      return '<div class="item">' +
+        '<strong>' + escapeHtml(commit.sha || 'unknown') + '</strong>' +
+        '<div>' + escapeHtml(commit.message || '') + '</div>' +
+        '<div class="tiny">' + escapeHtml(commit.authoredAt || '') + '</div>' +
+      '</div>';
+    }
+
+    function formatWorker(worker) {
+      return '<div class="item">' +
+        '<div class="row">' +
+          '<strong>' + escapeHtml(worker.name || 'worker') + '</strong>' +
+          badgeLabel(worker.status || 'idle', worker.status) +
+        '</div>' +
+        '<div class="muted">' + escapeHtml(worker.task || 'No task assigned') + '</div>' +
+        '<div class="bar" aria-label="Worker progress"><span style="width:' + Number(worker.progress || 0) + '%"></span></div>' +
+        '<div class="tiny">' + Number(worker.progress || 0) + '% complete</div>' +
+      '</div>';
+    }
+
+    function render(data) {
+      document.getElementById('project').textContent = 'Project: ' + (data.project || 'unknown');
+      document.getElementById('status-badge').className = badgeClass(data.status || 'idle');
+      document.getElementById('status-badge').textContent = data.status || 'idle';
+      document.getElementById('updated').textContent = 'Last updated: ' + (data.lastUpdated || 'unknown');
+
+      var statusRow = [
+        { label: 'Status', value: data.status || 'unknown', status: data.status },
+        { label: 'Active Workers', value: String((data.activeWorkers || []).length), status: data.activeWorkers && data.activeWorkers.length ? 'active' : 'idle' },
+        { label: 'Active Task', value: (data.activeTask && data.activeTask.title) || 'none', status: data.activeTask && data.activeTask.status },
+        { label: 'Review Phase', value: data.reviewPhase || 'none', status: data.reviewPhase }
+      ];
+      document.getElementById('status-row').innerHTML = statusRow.map(function (entry) {
+        return '<div class="card">' +
+          '<h2>' + escapeHtml(entry.label) + '</h2>' +
+          '<div class="metric">' + escapeHtml(entry.value) + '</div>' +
+          '<div style="margin-top:10px;">' + badgeLabel(entry.status || 'idle', entry.status) + '</div>' +
+        '</div>';
+      }).join('');
+
+      var activeTask = data.activeTask || {};
+      document.getElementById('active-task').innerHTML =
+        '<div class="item">' +
+          '<div class="row"><strong>' + escapeHtml(activeTask.title || 'No active task') + '</strong>' + badgeLabel(activeTask.status || 'idle', activeTask.status) + '</div>' +
+          '<div class="muted">Owner: ' + escapeHtml(activeTask.owner || 'unknown') + '</div>' +
+          '<div class="bar"><span style="width:' + Number(activeTask.progress || 0) + '%"></span></div>' +
+          '<div class="tiny">' + Number(activeTask.progress || 0) + '% complete</div>' +
+        '</div>';
+
+      document.getElementById('review-phase').innerHTML =
+        '<div class="item">' +
+          '<div class="row"><strong>' + escapeHtml(data.reviewPhase || 'none') + '</strong>' + badgeLabel(data.reviewPhase || 'idle', data.reviewPhase) + '</div>' +
+          '<div class="muted">This shows where the task sits in review or implementation flow.</div>' +
+        '</div>';
+
+      var queue = data.queueSummary || {};
+      document.getElementById('queue-summary').innerHTML =
+        '<div class="item-list">' +
+          '<div class="item"><strong>Total</strong><div class="metric">' + Number(queue.total || 0) + '</div></div>' +
+          '<div class="item"><strong>Active</strong><div class="metric">' + Number(queue.active || 0) + '</div></div>' +
+          '<div class="item"><strong>Blocked</strong><div class="metric">' + Number(queue.blocked || 0) + '</div></div>' +
+          '<div class="item"><strong>Queued</strong><div class="metric">' + Number(queue.queued || 0) + '</div></div>' +
+          '<div class="item"><strong>Overall Progress</strong><div class="bar"><span style="width:' + Number(queue.progress || 0) + '%"></span></div><div class="tiny">' + Number(queue.progress || 0) + '%</div></div>' +
+        '</div>';
+
+      var workers = data.activeWorkers || [];
+      document.getElementById('active-workers').innerHTML = workers.length ? workers.map(formatWorker).join('') : '<div class="item"><div class="muted">No active workers</div></div>';
+
+      var blockers = data.blockers || [];
+      document.getElementById('blockers').innerHTML = blockers.length ? blockers.map(function (blocker) {
+        return '<div class="item">' +
+          '<div class="row"><strong>' + escapeHtml(blocker.title || 'Blocker') + '</strong>' + badgeLabel(blocker.status || 'open', blocker.status) + '</div>' +
+        '</div>';
+      }).join('') : '<div class="item"><div class="muted">No blockers recorded</div></div>';
+
+      var commits = data.recentCommits || [];
+      document.getElementById('recent-commits').innerHTML = commits.length ? commits.map(formatCommit).join('') : '<div class="item"><div class="muted">No recent commits</div></div>';
+
+      lastRenderAt = new Date();
+    }
+
+    function showError(error) {
+      document.getElementById('status-badge').className = 'badge bad';
+      document.getElementById('status-badge').textContent = 'error';
+      document.getElementById('updated').textContent = 'Last refresh failed: ' + error;
+    }
+
+    function refresh() {
+      fetch('./execution-status.json?ts=' + Date.now(), { cache: 'no-store' })
+        .then(function (response) {
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          return response.json();
+        })
+        .then(render)
+        .catch(function (error) {
+          showError(error.message || String(error));
+        });
+    }
+
+    refresh();
+    setInterval(refresh, 15000);
   </script>
 </body>
 </html>
