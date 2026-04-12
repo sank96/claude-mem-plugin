@@ -36,28 +36,17 @@ Prerequisites:
 - access to the target CLI configuration and skill paths
 - the upstream `claude-mem` worker and storage available in the expected environment
 
-### Codex
+The runnable installer entrypoints are planned for Task 5. They are not part of the Task 1 surface yet, so this package does not advertise `install:*` or `uninstall:*` commands here.
 
-Use `npm run install:codex`.
+### Planned for Task 5
 
-On macOS, Codex is intended to run `hook-driven` when validated locally.
-On Windows, Codex uses `agent-driven fallback`.
-
-### Claude
-
-Use `npm run install:claude`.
-
-Claude follows the same policy split: `hook-driven` on macOS when supported, `agent-driven fallback` on Windows unless validated otherwise.
-
-### Copilot CLI
-
-Use `npm run install:copilot`.
-
-Copilot CLI is treated conservatively. Use `hook-driven` only when the runtime is validated; otherwise keep it in `agent-driven fallback`.
+- Codex installer and uninstaller entrypoints
+- Claude installer and uninstaller entrypoints
+- Copilot installer and uninstaller entrypoints
 
 ## Installation flow
 
-Every installer should do the same high-level work:
+When the installer surface exists in later tasks, every installer should do the same high-level work:
 
 1. verify prerequisites
 2. register the CLI adapter configuration
@@ -85,9 +74,9 @@ This package keeps the skill cross-CLI so operators do not have to learn a separ
 
 ## Upgrade and uninstall
 
-- Upgrade by reinstalling the desired adapter after pulling the latest package.
-- Uninstall by running the matching `uninstall:*` command for that CLI.
-- If a CLI is in `agent-driven fallback`, do not assume uninstalling the adapter removes upstream memory data.
+- Upgrade by revisiting this package after later tasks add the runnable installers.
+- Uninstall will be handled by the Task 5 adapter-specific entrypoints.
+- If a CLI is in `agent-driven fallback`, do not assume adapter removal changes upstream memory data.
 
 ## Troubleshooting quick hits
 

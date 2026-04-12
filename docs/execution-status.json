@@ -58,14 +58,26 @@
     "title": "Expand docs and dashboard for Task 1",
     "status": "in_progress",
     "progress": 72,
-    "owner": "local workspace agent"
+    "owner": "local workspace agent",
+    "assignedTo": "workspace-agent"
   },
   "activeWorkers": [
     {
       "name": "workspace-agent",
       "status": "in_progress",
       "task": "Task 1 doc and dashboard repair",
-      "progress": 72
+      "progress": 72,
+      "assignedTo": "workspace-agent"
+    }
+  ],
+  "spawnedAgents": [
+    {
+      "nickname": "workspace-agent",
+      "agentType": "task-executor",
+      "model": "sonnet",
+      "context": "Task 1 doc and dashboard repair",
+      "responsibility": "keep the package skeleton, docs, and dashboard aligned with the task 1 contract",
+      "runtimeStatus": "in_progress"
     }
   ],
   "queueSummary": {

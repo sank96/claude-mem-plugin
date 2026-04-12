@@ -8,12 +8,6 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test tests/package/package-metadata.test.js tests/docs/task1-contract.test.js",
-    "install:codex": "node installers/codex/install.js",
-    "uninstall:codex": "node installers/codex/uninstall.js",
-    "install:claude": "node installers/claude/install.js",
-    "uninstall:claude": "node installers/claude/uninstall.js",
-    "install:copilot": "node installers/copilot/install.js",
-    "uninstall:copilot": "node installers/copilot/uninstall.js"
+    "test": "node --test tests/package/package-metadata.test.js tests/docs/task1-contract.test.js"
   }
 }

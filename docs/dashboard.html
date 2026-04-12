@@ -32,7 +32,7 @@
       line-height: 1.45;
     }
     .shell {
-      max-width: 1280px;
+      max-width: 1320px;
       margin: 0 auto;
       padding: 32px 20px 40px;
     }
@@ -47,19 +47,14 @@
     h1, h2, h3, p { margin: 0; }
     h1 { font-size: 32px; letter-spacing: -0.03em; }
     .subtle { color: var(--muted); }
-    .status-row, .grid, .list {
+    .grid {
       display: grid;
       gap: 16px;
+      grid-template-columns: 1.8fr 1fr;
     }
-    .status-row {
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      margin-bottom: 16px;
-    }
-    .grid {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    }
-    .wide {
-      grid-column: 1 / -1;
+    .stack {
+      display: grid;
+      gap: 8px;
     }
     .card {
       background: linear-gradient(180deg, var(--panel), var(--panel-soft));
@@ -76,11 +71,6 @@
       color: var(--muted);
       margin-bottom: 12px;
     }
-    .metric {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: -0.04em;
-    }
     .badge {
       display: inline-flex;
       align-items: center;
@@ -91,6 +81,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
+      white-space: nowrap;
     }
     .badge::before {
       content: "";
@@ -104,59 +95,10 @@
     .badge.bad { color: var(--bad); background: rgba(239, 68, 68, 0.12); }
     .badge.idle { color: var(--idle); background: rgba(100, 116, 139, 0.12); }
     .badge.info { color: var(--accent); background: rgba(56, 189, 248, 0.12); }
-    .stack {
-      display: grid;
-      gap: 8px;
+    .tiny {
+      font-size: 12px;
+      color: var(--muted);
     }
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .item-list {
-      display: grid;
-      gap: 10px;
-    }
-    .task-board {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    }
-    .task-column {
-      display: grid;
-      gap: 10px;
-    }
-    .task-column h3 {
-      font-size: 16px;
-      margin-bottom: 4px;
-    }
-    .task-meta {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-    .item {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px;
-      background: rgba(2, 6, 23, 0.16);
-    }
-    .item strong { display: block; margin-bottom: 4px; }
-    .bar {
-      height: 10px;
-      border-radius: 999px;
-      background: rgba(148, 163, 184, 0.16);
-      overflow: hidden;
-    }
-    .bar > span {
-      display: block;
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), #22c55e);
-    }
-    .muted { color: var(--muted); }
     .footer {
       margin-top: 16px;
       display: flex;
@@ -166,15 +108,64 @@
       color: var(--muted);
       font-size: 14px;
     }
-    .tiny {
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
       font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .task-group {
+      margin-top: 18px;
+    }
+    .task-group:first-child {
+      margin-top: 0;
+    }
+    .task-group h3 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+    .task-note {
       color: var(--muted);
     }
+    .agent-list {
+      display: grid;
+      gap: 10px;
+    }
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(2, 6, 23, 0.16);
+    }
+    .item strong { display: block; margin-bottom: 4px; }
     code {
       background: rgba(148, 163, 184, 0.12);
       padding: 0.15rem 0.35rem;
       border-radius: 6px;
     }
+    .meta-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      margin-top: 16px;
+    }
+    .muted { color: var(--muted); }
   </style>
 </head>
 <body>
@@ -183,7 +174,7 @@
       <div>
         <p class="tiny">Local execution dashboard</p>
         <h1>claude-mem-plugin</h1>
-        <p class="subtle">Live state from <code>docs/execution-status.json</code> with auto-refresh polling.</p>
+        <p class="subtle">Task board and spawned agents from <code>docs/execution-status.json</code>. A local-file fallback is embedded below, so the page still renders without a server.</p>
       </div>
       <div class="stack" style="align-items:flex-end;">
         <span id="status-badge" class="badge idle">Loading</span>
@@ -191,46 +182,137 @@
       </div>
     </div>
 
-    <div class="status-row" id="status-row"></div>
+    <section class="card">
+      <h2>Task Board</h2>
+      <div id="task-board"></div>
+    </section>
 
-    <div class="grid">
+    <div class="meta-grid">
       <section class="card">
-        <h2>Active Task</h2>
-        <div class="stack" id="active-task"></div>
+        <h2>Spawned Agents</h2>
+        <div class="agent-list" id="spawned-agents"></div>
       </section>
       <section class="card">
-        <h2>Review Phase</h2>
+        <h2>Review / Queue</h2>
         <div class="stack" id="review-phase"></div>
-      </section>
-      <section class="card">
-        <h2>Queue Summary</h2>
-        <div class="stack" id="queue-summary"></div>
-      </section>
-      <section class="card">
-        <h2>Active Workers</h2>
-        <div class="item-list" id="active-workers"></div>
-      </section>
-      <section class="card">
-        <h2>Blockers</h2>
-        <div class="item-list" id="blockers"></div>
+        <div class="stack" id="queue-summary" style="margin-top:14px;"></div>
       </section>
       <section class="card">
         <h2>Recent Commits</h2>
-        <div class="item-list" id="recent-commits"></div>
+        <div class="stack" id="recent-commits"></div>
       </section>
-      <section class="card wide">
-        <h2>Task Board</h2>
-        <div class="task-board" id="task-board"></div>
+      <section class="card">
+        <h2>Blockers</h2>
+        <div class="stack" id="blockers"></div>
       </section>
     </div>
 
     <div class="footer">
       <span id="project">Project: claude-mem-plugin</span>
-      <span>Polling every 15 seconds</span>
+      <span>Polling every 15 seconds with a no-server fallback</span>
     </div>
   </div>
+  <script id="status-fallback" type="application/json">
+  {
+    "project": "claude-mem-plugin",
+    "task": "Task 1 doc and dashboard repair",
+    "status": "in_progress",
+    "owner": "local workspace agent",
+    "lastUpdated": "2026-04-12T00:00:00+02:00",
+    "reviewPhase": "spec-review fixes in progress",
+    "activePhase": "Task 1",
+    "taskBoard": {
+      "planned": [
+        {
+          "id": "task-2",
+          "title": "Extract shared runtime core",
+          "status": "planned",
+          "assignedTo": "workspace-agent",
+          "summary": "Move path, platform, policy, worker, and lifecycle helpers into core modules.",
+          "lastUpdated": "2026-04-12T00:00:00+02:00",
+          "phase": "Task 2",
+          "createdAt": "2026-04-12T00:00:00+02:00"
+        },
+        {
+          "id": "task-3",
+          "title": "Add shared agent-driven fallback commands",
+          "status": "planned",
+          "assignedTo": "workspace-agent",
+          "summary": "Create explicit lifecycle command entrypoints for fallback execution.",
+          "lastUpdated": "2026-04-12T00:00:00+02:00",
+          "phase": "Task 3",
+          "createdAt": "2026-04-12T00:00:00+02:00"
+        }
+      ],
+      "current": [
+        {
+          "id": "task-1-docs-dashboard",
+          "title": "Expand docs and dashboard for Task 1",
+          "status": "in_progress",
+          "assignedTo": "workspace-agent",
+          "summary": "Finish the operator-facing docs and dashboard contract for the package skeleton.",
+          "lastUpdated": "2026-04-12T00:00:00+02:00",
+          "phase": "Task 1",
+          "createdAt": "2026-04-12T00:00:00+02:00"
+        }
+      ],
+      "completed": [
+        {
+          "id": "task-1-bootstrap",
+          "title": "Bootstrap package skeleton",
+          "status": "completed",
+          "assignedTo": "workspace-agent",
+          "summary": "Create the package root, repo files, and initial metadata test.",
+          "lastUpdated": "2026-04-12T00:00:00+02:00",
+          "phase": "Task 1",
+          "completedAt": "2026-04-12T00:00:00+02:00"
+        }
+      ]
+    },
+    "activeTask": {
+      "title": "Expand docs and dashboard for Task 1",
+      "status": "in_progress",
+      "progress": 72,
+      "owner": "local workspace agent",
+      "assignedTo": "workspace-agent"
+    },
+    "spawnedAgents": [
+      {
+        "nickname": "workspace-agent",
+        "agentType": "task-executor",
+        "model": "sonnet",
+        "context": "Task 1 doc and dashboard repair",
+        "responsibility": "keep the package skeleton, docs, and dashboard aligned with the task 1 contract",
+        "runtimeStatus": "in_progress"
+      }
+    ],
+    "queueSummary": {
+      "total": 1,
+      "active": 1,
+      "blocked": 0,
+      "queued": 0,
+      "completed": 0,
+      "progress": 72
+    },
+    "blockers": [
+      {
+        "title": "Spec-review findings need to be reflected in the docs and dashboard",
+        "status": "resolved"
+      }
+    ],
+    "recentCommits": [
+      {
+        "sha": "f1d02652f6108b415f9d926545d6074f124e19dd",
+        "message": "docs: add task board ownership to dashboard",
+        "authoredAt": "2026-04-12T00:00:00+02:00"
+      }
+    ]
+  }
+  </script>
   <script>
-    var lastRenderAt = null;
+    function readFallbackData() {
+      return JSON.parse(document.getElementById('status-fallback').textContent);
+    }
 
     function badgeClass(status) {
       var value = String(status || '').toLowerCase();
@@ -254,89 +336,82 @@
         .replace(/'/g, '&#39;');
     }
 
-    function formatCommit(commit) {
-      return '<div class="item">' +
-        '<strong>' + escapeHtml(commit.sha || 'unknown') + '</strong>' +
-        '<div>' + escapeHtml(commit.message || '') + '</div>' +
-        '<div class="tiny">' + escapeHtml(commit.authoredAt || '') + '</div>' +
-      '</div>';
+    function noteForTask(task) {
+      var status = String(task.status || '').toLowerCase();
+      if (status === 'completed') return 'done by ' + escapeHtml(task.assignedTo || 'unassigned');
+      if (status === 'in_progress') return 'in progress by ' + escapeHtml(task.assignedTo || 'unassigned');
+      return 'planned for ' + escapeHtml(task.assignedTo || 'unassigned');
     }
 
-    function formatWorker(worker) {
-      return '<div class="item">' +
-        '<div class="row">' +
-          '<strong>' + escapeHtml(worker.name || 'worker') + '</strong>' +
-          badgeLabel(worker.status || 'idle', worker.status) +
-        '</div>' +
-        '<div class="muted">' + escapeHtml(worker.task || 'No task assigned') + '</div>' +
-        '<div class="bar" aria-label="Worker progress"><span style="width:' + Number(worker.progress || 0) + '%"></span></div>' +
-        '<div class="tiny">' + Number(worker.progress || 0) + '% complete</div>' +
-      '</div>';
-    }
-
-    function formatTask(task) {
-      return '<div class="item">' +
-        '<div class="row">' +
-          '<strong>' + escapeHtml(task.title || 'Untitled task') + '</strong>' +
-          badgeLabel(task.status || 'idle', task.status) +
-        '</div>' +
-        '<div class="muted">' + escapeHtml(task.summary || '') + '</div>' +
-        '<div class="task-meta">' +
-          '<span class="badge idle">Assigned to ' + escapeHtml(task.assignedTo || 'unassigned') + '</span>' +
-          '<span class="badge idle">Task ' + escapeHtml(task.id || 'unknown') + '</span>' +
-          (task.phase ? '<span class="badge info">' + escapeHtml(task.phase) + '</span>' : '') +
-        '</div>' +
-        '<div class="tiny">Updated ' + escapeHtml(task.lastUpdated || 'unknown') + '</div>' +
-      '</div>';
-    }
-
-    function render(data) {
-      document.getElementById('project').textContent = 'Project: ' + (data.project || 'unknown');
-      document.getElementById('status-badge').className = badgeClass(data.status || 'idle');
-      document.getElementById('status-badge').textContent = data.status || 'idle';
-      document.getElementById('updated').textContent = 'Last updated: ' + (data.lastUpdated || 'unknown');
-
-      var statusRow = [
-        { label: 'Status', value: data.status || 'unknown', status: data.status },
-        { label: 'Active Workers', value: String((data.activeWorkers || []).length), status: data.activeWorkers && data.activeWorkers.length ? 'active' : 'idle' },
-        { label: 'Active Task', value: (data.activeTask && data.activeTask.title) || 'none', status: data.activeTask && data.activeTask.status },
-        { label: 'Review Phase', value: data.reviewPhase || 'none', status: data.reviewPhase }
-      ];
-      document.getElementById('status-row').innerHTML = statusRow.map(function (entry) {
-        return '<div class="card">' +
-          '<h2>' + escapeHtml(entry.label) + '</h2>' +
-          '<div class="metric">' + escapeHtml(entry.value) + '</div>' +
-          '<div style="margin-top:10px;">' + badgeLabel(entry.status || 'idle', entry.status) + '</div>' +
-        '</div>';
+    function renderTaskGroup(title, items) {
+      var rows = items.map(function (task) {
+        return '<tr>' +
+          '<td>' + badgeLabel(task.status || 'idle', task.status) + '</td>' +
+          '<td>' + escapeHtml(task.title || '') + '</td>' +
+          '<td>' + escapeHtml(task.assignedTo || 'unassigned') + '</td>' +
+          '<td class="task-note">' + noteForTask(task) + '</td>' +
+        '</tr>';
       }).join('');
+      return '<div class="task-group">' +
+        '<h3>' + escapeHtml(title) + '</h3>' +
+        '<table>' +
+          '<thead><tr><th>Status</th><th>Task</th><th>Assigned To</th><th>Note</th></tr></thead>' +
+          '<tbody>' + (rows || '<tr><td colspan="4" class="muted">No tasks</td></tr>') + '</tbody>' +
+        '</table>' +
+      '</div>';
+    }
 
-      var activeTask = data.activeTask || {};
-      document.getElementById('active-task').innerHTML =
-        '<div class="item">' +
-          '<div class="row"><strong>' + escapeHtml(activeTask.title || 'No active task') + '</strong>' + badgeLabel(activeTask.status || 'idle', activeTask.status) + '</div>' +
-          '<div class="muted">Owner: ' + escapeHtml(activeTask.owner || 'unknown') + '</div>' +
-          '<div class="bar"><span style="width:' + Number(activeTask.progress || 0) + '%"></span></div>' +
-          '<div class="tiny">' + Number(activeTask.progress || 0) + '% complete</div>' +
+    function renderTasks(data) {
+      var board = data.taskBoard || {};
+      document.getElementById('task-board').innerHTML = [
+        renderTaskGroup('Planned', board.planned || []),
+        renderTaskGroup('Current', board.current || []),
+        renderTaskGroup('Completed', board.completed || [])
+      ].join('');
+    }
+
+    function renderAgents(data) {
+      var agents = data.spawnedAgents || [];
+      document.getElementById('spawned-agents').innerHTML = agents.length ? agents.map(function (agent) {
+        return '<div class="item">' +
+          '<div class="row">' +
+            '<strong>' + escapeHtml(agent.nickname || 'agent') + '</strong>' +
+            badgeLabel(agent.runtimeStatus || 'idle', agent.runtimeStatus) +
+          '</div>' +
+          '<div class="agent-grid">' +
+            '<div><div class="tiny">Agent Type</div><div>' + escapeHtml(agent.agentType || '') + '</div></div>' +
+            '<div><div class="tiny">Model</div><div>' + escapeHtml(agent.model || '') + '</div></div>' +
+            '<div><div class="tiny">Context</div><div>' + escapeHtml(agent.context || '') + '</div></div>' +
+            '<div><div class="tiny">Responsibility</div><div>' + escapeHtml(agent.responsibility || '') + '</div></div>' +
+          '</div>' +
         '</div>';
+      }).join('') : '<div class="item"><div class="muted">No spawned agents</div></div>';
+    }
 
+    function renderCompactSections(data) {
       document.getElementById('review-phase').innerHTML =
         '<div class="item">' +
           '<div class="row"><strong>' + escapeHtml(data.reviewPhase || 'none') + '</strong>' + badgeLabel(data.reviewPhase || 'idle', data.reviewPhase) + '</div>' +
-          '<div class="muted">This shows where the task sits in review or implementation flow.</div>' +
+          '<div class="muted">Current review phase from the live status model.</div>' +
         '</div>';
 
       var queue = data.queueSummary || {};
       document.getElementById('queue-summary').innerHTML =
-        '<div class="item-list">' +
-          '<div class="item"><strong>Total</strong><div class="metric">' + Number(queue.total || 0) + '</div></div>' +
-          '<div class="item"><strong>Active</strong><div class="metric">' + Number(queue.active || 0) + '</div></div>' +
-          '<div class="item"><strong>Blocked</strong><div class="metric">' + Number(queue.blocked || 0) + '</div></div>' +
-          '<div class="item"><strong>Queued</strong><div class="metric">' + Number(queue.queued || 0) + '</div></div>' +
-          '<div class="item"><strong>Overall Progress</strong><div class="bar"><span style="width:' + Number(queue.progress || 0) + '%"></span></div><div class="tiny">' + Number(queue.progress || 0) + '%</div></div>' +
-        '</div>';
+        '<div class="item"><strong>Queue Summary</strong></div>' +
+        '<div class="item"><div class="tiny">Total</div><div>' + Number(queue.total || 0) + '</div></div>' +
+        '<div class="item"><div class="tiny">Active</div><div>' + Number(queue.active || 0) + '</div></div>' +
+        '<div class="item"><div class="tiny">Blocked</div><div>' + Number(queue.blocked || 0) + '</div></div>' +
+        '<div class="item"><div class="tiny">Queued</div><div>' + Number(queue.queued || 0) + '</div></div>' +
+        '<div class="item"><div class="tiny">Overall Progress</div><div>' + Number(queue.progress || 0) + '%</div></div>';
 
-      var workers = data.activeWorkers || [];
-      document.getElementById('active-workers').innerHTML = workers.length ? workers.map(formatWorker).join('') : '<div class="item"><div class="muted">No active workers</div></div>';
+      var commits = data.recentCommits || [];
+      document.getElementById('recent-commits').innerHTML = commits.length ? commits.map(function (commit) {
+        return '<div class="item">' +
+          '<strong>' + escapeHtml(commit.sha || 'unknown') + '</strong>' +
+          '<div>' + escapeHtml(commit.message || '') + '</div>' +
+          '<div class="tiny">' + escapeHtml(commit.authoredAt || '') + '</div>' +
+        '</div>';
+      }).join('') : '<div class="item"><div class="muted">No recent commits</div></div>';
 
       var blockers = data.blockers || [];
       document.getElementById('blockers').innerHTML = blockers.length ? blockers.map(function (blocker) {
@@ -344,33 +419,20 @@
           '<div class="row"><strong>' + escapeHtml(blocker.title || 'Blocker') + '</strong>' + badgeLabel(blocker.status || 'open', blocker.status) + '</div>' +
         '</div>';
       }).join('') : '<div class="item"><div class="muted">No blockers recorded</div></div>';
-
-      var commits = data.recentCommits || [];
-      document.getElementById('recent-commits').innerHTML = commits.length ? commits.map(formatCommit).join('') : '<div class="item"><div class="muted">No recent commits</div></div>';
-
-      var board = data.taskBoard || {};
-      var grouped = [
-        { key: 'planned', label: 'Planned Tasks', items: board.planned || [] },
-        { key: 'current', label: 'Current Tasks', items: board.current || [] },
-        { key: 'completed', label: 'Completed Tasks', items: board.completed || [] }
-      ];
-      document.getElementById('task-board').innerHTML = grouped.map(function (column) {
-        return '<div class="card task-column">' +
-          '<div class="row">' +
-            '<h3>' + escapeHtml(column.label) + '</h3>' +
-            badgeLabel(String(column.items.length), column.key) +
-          '</div>' +
-          (column.items.length ? column.items.map(formatTask).join('') : '<div class="item"><div class="muted">No tasks</div></div>') +
-        '</div>';
-      }).join('');
-
-      lastRenderAt = new Date();
     }
 
-    function showError(error) {
-      document.getElementById('status-badge').className = 'badge bad';
-      document.getElementById('status-badge').textContent = 'error';
-      document.getElementById('updated').textContent = 'Last refresh failed: ' + error;
+    function render(data) {
+      document.getElementById('project').textContent = 'Project: ' + (data.project || 'unknown');
+      document.getElementById('status-badge').className = badgeClass(data.status || 'idle');
+      document.getElementById('status-badge').textContent = data.status || 'idle';
+      document.getElementById('updated').textContent = 'Last updated: ' + (data.lastUpdated || 'unknown');
+      renderTasks(data);
+      renderAgents(data);
+      renderCompactSections(data);
+    }
+
+    function applyData(data) {
+      render(data);
     }
 
     function refresh() {
@@ -379,12 +441,13 @@
           if (!response.ok) throw new Error('HTTP ' + response.status);
           return response.json();
         })
-        .then(render)
-        .catch(function (error) {
-          showError(error.message || String(error));
+        .then(applyData)
+        .catch(function () {
+          applyData(readFallbackData());
         });
     }
 
+    applyData(readFallbackData());
     refresh();
     setInterval(refresh, 15000);
   </script>

@@ -10,14 +10,23 @@ function read(relPath) {
 
 test('README covers operator essentials for all CLIs', () => {
   const readme = read('README.md');
-  assert.match(readme, /Codex/i);
-  assert.match(readme, /Claude/i);
-  assert.match(readme, /Copilot/i);
+  assert.match(readme, /Planned for Task 5/i);
   assert.match(readme, /hook-driven/i);
   assert.match(readme, /agent-driven fallback/i);
   assert.match(readme, /upgrade/i);
   assert.match(readme, /uninstall/i);
   assert.match(readme, /troubleshooting/i);
+  assert.doesNotMatch(readme, /install:codex/i);
+  assert.doesNotMatch(readme, /install:claude/i);
+  assert.doesNotMatch(readme, /install:copilot/i);
+});
+
+test('installation docs do not advertise runnable installers yet', () => {
+  const installation = read('docs/installation.md');
+  assert.match(installation, /planned for Task 5/i);
+  assert.doesNotMatch(installation, /npm run install:codex/i);
+  assert.doesNotMatch(installation, /npm run install:claude/i);
+  assert.doesNotMatch(installation, /npm run install:copilot/i);
 });
 
 test('execution status schema exposes dashboard fields', () => {
@@ -28,9 +37,7 @@ test('execution status schema exposes dashboard fields', () => {
   assert.ok(Array.isArray(status.taskBoard.planned));
   assert.ok(Array.isArray(status.taskBoard.current));
   assert.ok(Array.isArray(status.taskBoard.completed));
-  assert.ok(Array.isArray(status.activeWorkers));
-  assert.ok(status.activeTask && typeof status.activeTask === 'object');
-  assert.ok(status.queueSummary && typeof status.queueSummary === 'object');
+  assert.ok(Array.isArray(status.spawnedAgents));
   assert.ok(Array.isArray(status.blockers));
   assert.ok(Array.isArray(status.recentCommits));
   for (const task of [...status.taskBoard.planned, ...status.taskBoard.current, ...status.taskBoard.completed]) {
@@ -41,20 +48,39 @@ test('execution status schema exposes dashboard fields', () => {
     assert.equal(typeof task.summary, 'string');
     assert.equal(typeof task.lastUpdated, 'string');
   }
+  for (const agent of status.spawnedAgents) {
+    assert.equal(typeof agent.nickname, 'string');
+    assert.equal(typeof agent.agentType, 'string');
+    assert.equal(typeof agent.model, 'string');
+    assert.equal(typeof agent.context, 'string');
+    assert.equal(typeof agent.responsibility, 'string');
+    assert.equal(typeof agent.runtimeStatus, 'string');
+  }
 });
 
-test('dashboard renders a UI and polls the status source', () => {
+test('dashboard renders a simplified task board and polls with fallback', () => {
   const dashboard = read('docs/dashboard.html');
   assert.match(dashboard, /execution-status\.json/);
   assert.match(dashboard, /setInterval\(refresh,\s*15000\)/);
-  assert.match(dashboard, /Active Workers/i);
-  assert.match(dashboard, /Review Phase/i);
-  assert.match(dashboard, /Queue Summary/i);
-  assert.match(dashboard, /Recent Commits/i);
+  assert.match(dashboard, /no-server fallback/i);
   assert.match(dashboard, /Task Board/i);
-  assert.match(dashboard, /Planned Tasks/i);
-  assert.match(dashboard, /Current Tasks/i);
-  assert.match(dashboard, /Completed Tasks/i);
-  assert.match(dashboard, /Assigned to/i);
+  assert.match(dashboard, /Spawned Agents/i);
+  assert.match(dashboard, /Planned/i);
+  assert.match(dashboard, /Current/i);
+  assert.match(dashboard, /Completed/i);
+  assert.match(dashboard, /done by/i);
+  assert.match(dashboard, /in progress by/i);
+  assert.match(dashboard, /nickname/i);
+  assert.match(dashboard, /agent type/i);
+  assert.match(dashboard, /responsibility/i);
   assert.match(dashboard, /status-badge/i);
+});
+
+test('execution status markdown stays thin and points to canonical state', () => {
+  const statusMd = read('docs/execution-status.md');
+  assert.match(statusMd, /thin human-readable pointer/i);
+  assert.match(statusMd, /execution-status\.json/i);
+  assert.match(statusMd, /dashboard\.html/i);
+  assert.doesNotMatch(statusMd, /Current phase/i);
+  assert.doesNotMatch(statusMd, /Task board:/i);
 });

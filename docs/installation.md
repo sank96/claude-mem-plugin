@@ -1,6 +1,6 @@
 # Installation
 
-The installers are intentionally boring: they should set up the host CLI, install the shared `claude-mem` skill, and then choose the runtime mode based on platform and adapter policy.
+Task 1 only defines the package skeleton and documentation surface. The runnable installer entrypoints are planned for Task 5 and are not available yet.
 
 ## Common prerequisites
 
@@ -9,39 +9,27 @@ The installers are intentionally boring: they should set up the host CLI, instal
 - access to the target CLI's configuration and skill directories
 - the upstream `claude-mem` worker environment already available
 
-## Codex
+## Planned installer surface
 
-Run `npm run install:codex` from `claude-mem-plugin/`.
+- Codex installer and uninstaller
+- Claude installer and uninstaller
+- Copilot installer and uninstaller
 
-Expected mode:
+## What Task 5 will add
 
-- macOS: `hook-driven`
-- Windows: `agent-driven fallback`
+- CLI-specific install commands
+- adapter-specific mode selection
+- skill installation into host CLI paths
+- runtime policy reporting
 
-## Claude
+## Current state
 
-Run `npm run install:claude` from `claude-mem-plugin/`.
-
-Expected mode:
-
-- macOS: `hook-driven` when hook support is validated
-- Windows: `agent-driven fallback`
-
-## Copilot CLI
-
-Run `npm run install:copilot` from `claude-mem-plugin/`.
-
-Expected mode:
-
-- macOS: `hook-driven` only if validated locally
-- Windows: `agent-driven fallback`
+For Task 1, the documented behavior is read-only: the package structure, dashboard, and status model are available, but no installer command should be run yet.
 
 ## Uninstall rules
 
-- remove adapter-specific configuration
-- remove the shared skill from the target CLI if it was installed there
-- leave upstream `claude-mem` storage and worker data intact
+Uninstall commands are also planned for Task 5 and must not be treated as runnable in Task 1.
 
 ## Failure handling
 
-If installation fails, check the target CLI's config path, then verify the runtime policy selected the intended mode for that platform.
+If a future installer fails, check the target CLI's config path, then verify the runtime policy selected the intended mode for that platform.
