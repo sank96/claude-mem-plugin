@@ -76,7 +76,7 @@
       font-size: 18px;
       line-height: 1;
     }
-    details[open] summary::after { content: "−"; }
+    details[open] summary::after { content: "-"; }
     .card-body {
       padding: 0 18px 18px;
     }
@@ -205,8 +205,16 @@
     .button:hover, .file-label:hover {
       background: rgba(148, 163, 184, 0.16);
     }
-    .button input {
-      display: none;
+    #status-file {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
     .source-note {
       margin-top: 10px;

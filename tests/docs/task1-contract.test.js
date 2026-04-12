@@ -73,6 +73,8 @@ test('dashboard renders a simplified task board and polls with fallback', () => 
   assert.match(dashboard, /Blockers/i);
   assert.match(dashboard, /<details class="card"/i);
   assert.match(dashboard, /<summary>/i);
+  assert.match(dashboard, /details\[open\] summary::after \{ content: "-"; \}/);
+  assert.match(dashboard, /#status-file \{/);
   assert.match(dashboard, /done by/i);
   assert.match(dashboard, /in progress by/i);
   assert.match(dashboard, /nickname/i);
@@ -81,6 +83,8 @@ test('dashboard renders a simplified task board and polls with fallback', () => 
   assert.doesNotMatch(dashboard, /grid-template-columns:\s*repeat\(4/i);
   assert.match(dashboard, /FileReader/i);
   assert.match(dashboard, /status-badge/i);
+  assert.doesNotMatch(dashboard, /summary::after \{ content: "âˆ’"; \}/);
+  assert.doesNotMatch(dashboard, /\.button input \{/);
 });
 
 test('execution status markdown stays thin and points to canonical state', () => {
