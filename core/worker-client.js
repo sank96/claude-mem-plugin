@@ -77,9 +77,10 @@ function createWorkerClient(options = {}) {
   }
 
   function runHook(provider, phase, payload) {
+    const workerArgs = [paths.bunRunner, paths.workerService, 'hook', provider, phase];
     const result = exec(
       command,
-      [paths.workerService, 'hook', provider, phase],
+      workerArgs,
       {
         input: JSON.stringify(payload ?? {}),
         encoding: 'utf8',
@@ -99,6 +100,8 @@ function createWorkerClient(options = {}) {
       return false;
     }
 
+    let acknowledged = false;
+
     await new Promise((resolve) => {
       const req = httpClient.request(
         {
@@ -108,18 +111,25 @@ function createWorkerClient(options = {}) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
         },
-        () => resolve()
+        (res) => {
+          acknowledged = res.statusCode >= 200 && res.statusCode < 300;
+          resolve();
+        }
       );
 
-      req.on('error', () => resolve());
+      req.on('error', () => {
+        acknowledged = false;
+        resolve();
+      });
       req.setTimeout(sessionTimeoutMs, () => {
+        acknowledged = false;
         req.destroy();
         resolve();
       });
       req.end(JSON.stringify({ contentSessionId: sessionId }));
     });
 
-    return true;
+    return acknowledged;
   }
 
   return {
