@@ -1,8 +1,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-test('session-start command delegates to the context lifecycle', async () => {
-  const { buildSessionStartCommand } = require('../../commands/session-start.js');
+test('session-start is directly invocable and validates provider input', async () => {
+  const { sessionStartCommand, buildSessionStartCommand } = require('../../commands/session-start.js');
+
+  assert.equal(typeof sessionStartCommand, 'function');
+  assert.equal(typeof buildSessionStartCommand, 'function');
 
   const calls = [];
   const lifecycle = {
@@ -13,9 +16,7 @@ test('session-start command delegates to the context lifecycle', async () => {
   };
   const workerClient = { id: 'worker-client' };
 
-  const run = buildSessionStartCommand(lifecycle, workerClient);
-  const result = await run('codex', { source: 'manual' });
-
+  const result = await sessionStartCommand('codex', { source: 'manual' }, { lifecycle, workerClient });
   assert.deepEqual(result, { continue: true });
   assert.deepEqual(calls, [
     {
@@ -24,10 +25,18 @@ test('session-start command delegates to the context lifecycle', async () => {
       payload: { source: 'manual' },
     },
   ]);
+
+  await assert.rejects(
+    () => sessionStartCommand('', { source: 'manual' }, { lifecycle, workerClient }),
+    /provider/i
+  );
 });
 
-test('observe command delegates to the observation lifecycle', async () => {
-  const { buildObserveCommand } = require('../../commands/observe.js');
+test('observe is directly invocable and validates payload input', async () => {
+  const { observeCommand, buildObserveCommand } = require('../../commands/observe.js');
+
+  assert.equal(typeof observeCommand, 'function');
+  assert.equal(typeof buildObserveCommand, 'function');
 
   const calls = [];
   const lifecycle = {
@@ -38,9 +47,7 @@ test('observe command delegates to the observation lifecycle', async () => {
   };
   const workerClient = { id: 'worker-client' };
 
-  const run = buildObserveCommand(lifecycle, workerClient);
-  const result = await run('codex', { tool_name: 'Read' });
-
+  const result = await observeCommand('codex', { tool_name: 'Read' }, { lifecycle, workerClient });
   assert.deepEqual(result, { continue: true, suppressOutput: true });
   assert.deepEqual(calls, [
     {
@@ -49,10 +56,18 @@ test('observe command delegates to the observation lifecycle', async () => {
       payload: { tool_name: 'Read' },
     },
   ]);
+
+  await assert.rejects(
+    () => observeCommand('codex', null, { lifecycle, workerClient }),
+    /payload/i
+  );
 });
 
-test('stop command delegates to the summarize lifecycle', async () => {
-  const { buildStopCommand } = require('../../commands/stop.js');
+test('stop is directly invocable and validates provider input', async () => {
+  const { stopCommand, buildStopCommand } = require('../../commands/stop.js');
+
+  assert.equal(typeof stopCommand, 'function');
+  assert.equal(typeof buildStopCommand, 'function');
 
   const calls = [];
   const lifecycle = {
@@ -63,9 +78,7 @@ test('stop command delegates to the summarize lifecycle', async () => {
   };
   const workerClient = { id: 'worker-client' };
 
-  const run = buildStopCommand(lifecycle, workerClient);
-  const result = await run('codex', { stop_hook_active: true });
-
+  const result = await stopCommand('codex', { stop_hook_active: true }, { lifecycle, workerClient });
   assert.deepEqual(result, { continue: false });
   assert.deepEqual(calls, [
     {
@@ -74,29 +87,40 @@ test('stop command delegates to the summarize lifecycle', async () => {
       payload: { stop_hook_active: true },
     },
   ]);
+
+  await assert.rejects(
+    () => stopCommand(undefined, { stop_hook_active: true }, { lifecycle, workerClient }),
+    /provider/i
+  );
 });
 
-test('session-end command delegates to the complete lifecycle', async () => {
-  const { buildSessionEndCommand } = require('../../commands/session-end.js');
+test('session-end is provider-agnostic and directly invocable', async () => {
+  const { sessionEndCommand, buildSessionEndCommand } = require('../../commands/session-end.js');
+
+  assert.equal(typeof sessionEndCommand, 'function');
+  assert.equal(typeof buildSessionEndCommand, 'function');
+  assert.equal(sessionEndCommand.length, 1);
 
   const calls = [];
   const lifecycle = {
-    runCompleteLifecycle(workerClient, provider, payload) {
-      calls.push({ workerClient, provider, payload });
+    runCompleteLifecycle(workerClient, payload) {
+      calls.push({ workerClient, payload });
       return false;
     },
   };
   const workerClient = { id: 'worker-client' };
 
-  const run = buildSessionEndCommand(lifecycle, workerClient);
-  const result = await run('codex', { sessionId: 'session-123' });
-
+  const result = await sessionEndCommand({ sessionId: 'session-123' }, { lifecycle, workerClient });
   assert.equal(result, false);
   assert.deepEqual(calls, [
     {
       workerClient,
-      provider: 'codex',
       payload: { sessionId: 'session-123' },
     },
   ]);
+
+  await assert.rejects(
+    () => sessionEndCommand(null, { lifecycle, workerClient }),
+    /payload/i
+  );
 });
