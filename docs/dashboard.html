@@ -58,6 +58,9 @@
     .grid {
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
+    .wide {
+      grid-column: 1 / -1;
+    }
     .card {
       background: linear-gradient(180deg, var(--panel), var(--panel-soft));
       border: 1px solid var(--border);
@@ -115,6 +118,25 @@
     .item-list {
       display: grid;
       gap: 10px;
+    }
+    .task-board {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .task-column {
+      display: grid;
+      gap: 10px;
+    }
+    .task-column h3 {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
     }
     .item {
       border: 1px solid var(--border);
@@ -196,6 +218,10 @@
         <h2>Recent Commits</h2>
         <div class="item-list" id="recent-commits"></div>
       </section>
+      <section class="card wide">
+        <h2>Task Board</h2>
+        <div class="task-board" id="task-board"></div>
+      </section>
     </div>
 
     <div class="footer">
@@ -245,6 +271,22 @@
         '<div class="muted">' + escapeHtml(worker.task || 'No task assigned') + '</div>' +
         '<div class="bar" aria-label="Worker progress"><span style="width:' + Number(worker.progress || 0) + '%"></span></div>' +
         '<div class="tiny">' + Number(worker.progress || 0) + '% complete</div>' +
+      '</div>';
+    }
+
+    function formatTask(task) {
+      return '<div class="item">' +
+        '<div class="row">' +
+          '<strong>' + escapeHtml(task.title || 'Untitled task') + '</strong>' +
+          badgeLabel(task.status || 'idle', task.status) +
+        '</div>' +
+        '<div class="muted">' + escapeHtml(task.summary || '') + '</div>' +
+        '<div class="task-meta">' +
+          '<span class="badge idle">Assigned to ' + escapeHtml(task.assignedTo || 'unassigned') + '</span>' +
+          '<span class="badge idle">Task ' + escapeHtml(task.id || 'unknown') + '</span>' +
+          (task.phase ? '<span class="badge info">' + escapeHtml(task.phase) + '</span>' : '') +
+        '</div>' +
+        '<div class="tiny">Updated ' + escapeHtml(task.lastUpdated || 'unknown') + '</div>' +
       '</div>';
     }
 
@@ -305,6 +347,22 @@
 
       var commits = data.recentCommits || [];
       document.getElementById('recent-commits').innerHTML = commits.length ? commits.map(formatCommit).join('') : '<div class="item"><div class="muted">No recent commits</div></div>';
+
+      var board = data.taskBoard || {};
+      var grouped = [
+        { key: 'planned', label: 'Planned Tasks', items: board.planned || [] },
+        { key: 'current', label: 'Current Tasks', items: board.current || [] },
+        { key: 'completed', label: 'Completed Tasks', items: board.completed || [] }
+      ];
+      document.getElementById('task-board').innerHTML = grouped.map(function (column) {
+        return '<div class="card task-column">' +
+          '<div class="row">' +
+            '<h3>' + escapeHtml(column.label) + '</h3>' +
+            badgeLabel(String(column.items.length), column.key) +
+          '</div>' +
+          (column.items.length ? column.items.map(formatTask).join('') : '<div class="item"><div class="muted">No tasks</div></div>') +
+        '</div>';
+      }).join('');
 
       lastRenderAt = new Date();
     }

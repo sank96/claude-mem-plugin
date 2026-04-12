@@ -24,11 +24,23 @@ test('execution status schema exposes dashboard fields', () => {
   const status = JSON.parse(read('docs/execution-status.json'));
   assert.equal(typeof status.lastUpdated, 'string');
   assert.equal(typeof status.reviewPhase, 'string');
+  assert.ok(status.taskBoard && typeof status.taskBoard === 'object');
+  assert.ok(Array.isArray(status.taskBoard.planned));
+  assert.ok(Array.isArray(status.taskBoard.current));
+  assert.ok(Array.isArray(status.taskBoard.completed));
   assert.ok(Array.isArray(status.activeWorkers));
   assert.ok(status.activeTask && typeof status.activeTask === 'object');
   assert.ok(status.queueSummary && typeof status.queueSummary === 'object');
   assert.ok(Array.isArray(status.blockers));
   assert.ok(Array.isArray(status.recentCommits));
+  for (const task of [...status.taskBoard.planned, ...status.taskBoard.current, ...status.taskBoard.completed]) {
+    assert.equal(typeof task.id, 'string');
+    assert.equal(typeof task.title, 'string');
+    assert.equal(typeof task.status, 'string');
+    assert.equal(typeof task.assignedTo, 'string');
+    assert.equal(typeof task.summary, 'string');
+    assert.equal(typeof task.lastUpdated, 'string');
+  }
 });
 
 test('dashboard renders a UI and polls the status source', () => {
@@ -39,5 +51,10 @@ test('dashboard renders a UI and polls the status source', () => {
   assert.match(dashboard, /Review Phase/i);
   assert.match(dashboard, /Queue Summary/i);
   assert.match(dashboard, /Recent Commits/i);
+  assert.match(dashboard, /Task Board/i);
+  assert.match(dashboard, /Planned Tasks/i);
+  assert.match(dashboard, /Current Tasks/i);
+  assert.match(dashboard, /Completed Tasks/i);
+  assert.match(dashboard, /Assigned to/i);
   assert.match(dashboard, /status-badge/i);
 });

@@ -6,6 +6,54 @@
   "lastUpdated": "2026-04-12T00:00:00+02:00",
   "reviewPhase": "spec-review fixes in progress",
   "activePhase": "Task 1",
+  "taskBoard": {
+    "planned": [
+      {
+        "id": "task-2",
+        "title": "Extract shared runtime core",
+        "status": "planned",
+        "assignedTo": "workspace-agent",
+        "summary": "Move path, platform, policy, worker, and lifecycle helpers into core modules.",
+        "lastUpdated": "2026-04-12T00:00:00+02:00",
+        "phase": "Task 2",
+        "createdAt": "2026-04-12T00:00:00+02:00"
+      },
+      {
+        "id": "task-3",
+        "title": "Add shared agent-driven fallback commands",
+        "status": "planned",
+        "assignedTo": "workspace-agent",
+        "summary": "Create explicit lifecycle command entrypoints for fallback execution.",
+        "lastUpdated": "2026-04-12T00:00:00+02:00",
+        "phase": "Task 3",
+        "createdAt": "2026-04-12T00:00:00+02:00"
+      }
+    ],
+    "current": [
+      {
+        "id": "task-1-docs-dashboard",
+        "title": "Expand docs and dashboard for Task 1",
+        "status": "in_progress",
+        "assignedTo": "workspace-agent",
+        "summary": "Finish the operator-facing docs and dashboard contract for the package skeleton.",
+        "lastUpdated": "2026-04-12T00:00:00+02:00",
+        "phase": "Task 1",
+        "createdAt": "2026-04-12T00:00:00+02:00"
+      }
+    ],
+    "completed": [
+      {
+        "id": "task-1-bootstrap",
+        "title": "Bootstrap package skeleton",
+        "status": "completed",
+        "assignedTo": "workspace-agent",
+        "summary": "Create the package root, repo files, and initial metadata test.",
+        "lastUpdated": "2026-04-12T00:00:00+02:00",
+        "phase": "Task 1",
+        "completedAt": "2026-04-12T00:00:00+02:00"
+      }
+    ]
+  },
   "activeTask": {
     "title": "Expand docs and dashboard for Task 1",
     "status": "in_progress",
