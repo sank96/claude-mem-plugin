@@ -8,6 +8,7 @@ const { installClaudeAdapter } = require('../installers/claude/install.js');
 const { uninstallClaudeAdapter } = require('../installers/claude/uninstall.js');
 const { installCopilotAdapter } = require('../installers/copilot/install.js');
 const { uninstallCopilotAdapter } = require('../installers/copilot/uninstall.js');
+const { runDoctor } = require('./doctor.js');
 
 function usage() {
   return [
@@ -16,6 +17,7 @@ function usage() {
     'Usage:',
     '  claude-mem-plugin install <codex|claude|copilot|all>',
     '  claude-mem-plugin uninstall <codex|claude|copilot|all>',
+    '  claude-mem-plugin doctor',
     '  claude-mem-plugin help',
     '  claude-mem-plugin --help',
     '  claude-mem-plugin --version',
@@ -31,6 +33,10 @@ function parseArgs(argv) {
 
   if (command === '--version' || command === '-v') {
     return { kind: 'version' };
+  }
+
+  if (command === 'doctor') {
+    return { kind: 'doctor' };
   }
 
   if (!['install', 'uninstall'].includes(command)) {
@@ -51,6 +57,7 @@ function parseArgs(argv) {
 function createDefaultDeps() {
   return {
     version: require('../package.json').version,
+    doctor: runDoctor,
     install: {
       codex: installCodexAdapter,
       claude: installClaudeAdapter,
@@ -83,6 +90,19 @@ async function runCli(argv, deps = createDefaultDeps(), io = process) {
     io.stderr.write(`[claude-mem-plugin] ${parsed.message}\n`);
     io.stderr.write(`${usage()}\n`);
     return 1;
+  }
+
+  if (parsed.kind === 'doctor') {
+    try {
+      const result = await deps.doctor();
+      if (result && result.summary) {
+        io.stdout.write(`${result.summary}\n`);
+      }
+      return result && result.ok === false ? 1 : 0;
+    } catch (error) {
+      io.stderr.write(`[claude-mem-plugin] doctor error: ${error.message}\n`);
+      return 1;
+    }
   }
 
   try {

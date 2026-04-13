@@ -29,6 +29,7 @@ test('parseArgs recognizes help, version, and install commands', () => {
     command: 'install',
     target: 'codex',
   });
+  assert.deepEqual(parseArgs(['doctor']), { kind: 'doctor' });
 });
 
 test('runCli prints help when no arguments are passed', async () => {
@@ -94,4 +95,48 @@ test('runCli returns non-zero on invalid commands', async () => {
 
   assert.equal(exitCode, 1);
   assert.match(io.stderr.buffer, /unknown command/i);
+});
+
+test('runCli dispatches doctor and prints the diagnostic report', async () => {
+  const { runCli } = require('../../cli/index.js');
+  const io = createIo();
+
+  const exitCode = await runCli(
+    ['doctor'],
+    {
+      version: '0.1.0',
+      install: {},
+      uninstall: {},
+      doctor: async () => ({
+        ok: true,
+        summary: 'upstream claude-mem: OK\n[codex] — → installed',
+      }),
+    },
+    io
+  );
+
+  assert.equal(exitCode, 0);
+  assert.match(io.stdout.buffer, /upstream claude-mem: OK/i);
+});
+
+test('runCli returns non-zero when doctor reports missing adapters', async () => {
+  const { runCli } = require('../../cli/index.js');
+  const io = createIo();
+
+  const exitCode = await runCli(
+    ['doctor'],
+    {
+      version: '0.1.0',
+      install: {},
+      uninstall: {},
+      doctor: async () => ({
+        ok: false,
+        summary: 'upstream claude-mem: OK\n[copilot] — → NOT INSTALLED',
+      }),
+    },
+    io
+  );
+
+  assert.equal(exitCode, 1);
+  assert.match(io.stdout.buffer, /NOT INSTALLED/i);
 });
