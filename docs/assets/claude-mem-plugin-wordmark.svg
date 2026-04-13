@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 152" role="img" aria-labelledby="title desc">
+  <title id="title">claude-mem-plugin wordmark</title>
+  <desc id="desc">Minimal text wordmark for claude-mem-plugin</desc>
+  <style>
+    .primary {
+      fill: #0b1220;
+    }
+    .secondary {
+      fill: #0f766e;
+    }
+    .kicker {
+      font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+    }
+    .wordmark {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-size: 78px;
+      font-weight: 760;
+      letter-spacing: -0.05em;
+    }
+    .tag {
+      font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    @media (prefers-color-scheme: dark) {
+      .primary {
+        fill: #f8fafc;
+      }
+      .secondary {
+        fill: #67e8f9;
+      }
+    }
+  </style>
+  <rect width="980" height="152" fill="none" />
+  <g>
+    <text x="8" y="28" class="secondary kicker">shared memory cross cli</text>
+    <text x="0" y="106" class="primary wordmark">claude-mem</text>
+    <text x="655" y="106" class="secondary tag">plugin</text>
+  </g>
+</svg>

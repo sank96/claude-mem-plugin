@@ -1,0 +1,5 @@
+docs/HANDOFF-*.md
+.superpowers/
+dist/
+*.tgz
+.handoff/

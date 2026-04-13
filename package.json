@@ -1,6 +1,6 @@
 {
   "name": "claude-mem-plugin",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": false,
   "description": "Cross-CLI integration layer for claude-mem.",
   "homepage": "https://github.com/sank96/claude-mem-plugin#readme",

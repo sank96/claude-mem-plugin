@@ -12,3 +12,6 @@ docs/generated/
 *.tmp
 *.tgz
 Thumbs.db
+.superpowers/
+docs/HANDOFF-*.md
+.handoff/

@@ -7,6 +7,19 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-04-13
+
+### Changed
+
+- README now uses a stronger editorial OSS presentation with a centered hero, a compact manifesto line, and an `At a Glance` section
+- Added a refined text-only `claude-mem-plugin` wordmark for the public repository surface
+- Design notes now capture the approved README positioning and the final wordmark treatment used in the published docs
+
+### Fixed
+
+- Public documentation now explains the cross-CLI value proposition more clearly without slipping back into contributor-first onboarding
+- README tests now validate the centered hero and wordmark-based presentation instead of the older plain-text opening
+
 ## [0.1.2] - 2026-04-13
 
 ### Changed
