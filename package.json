@@ -3,11 +3,36 @@
   "version": "0.1.0",
   "private": true,
   "description": "Cross-CLI integration layer for claude-mem.",
+  "homepage": "https://github.com/sank96/claude-mem-plugin#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sank96/claude-mem-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sank96/claude-mem-plugin/issues"
+  },
   "license": "MIT",
+  "keywords": [
+    "claude-mem",
+    "codex",
+    "claude-code",
+    "copilot",
+    "mcp",
+    "memory",
+    "ai-agent"
+  ],
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test tests/package/package-metadata.test.js tests/docs/task1-contract.test.js"
+    "test": "node --test",
+    "install:codex": "node installers/codex/install.js",
+    "install:all": "node installers/install-all.js",
+    "uninstall:codex": "node installers/codex/uninstall.js",
+    "install:claude": "node installers/claude/install.js",
+    "uninstall:claude": "node installers/claude/uninstall.js",
+    "install:copilot": "node installers/copilot/install.js",
+    "uninstall:copilot": "node installers/copilot/uninstall.js",
+    "uninstall:all": "node installers/uninstall-all.js"
   }
 }

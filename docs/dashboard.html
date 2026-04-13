@@ -325,101 +325,188 @@
   <script id="status-fallback" type="application/json">
   {
     "project": "claude-mem-plugin",
-    "task": "Task 1 doc and dashboard repair",
-    "status": "in_progress",
+    "task": "Migration complete; legacy codex-mem removed",
+    "status": "completed",
     "owner": "local workspace agent",
-    "lastUpdated": "2026-04-12T00:00:00+02:00",
-    "reviewPhase": "spec-review fixes in progress",
-    "activePhase": "Task 1",
+    "lastUpdated": "2026-04-13T01:54:26+02:00",
+    "reviewPhase": "completed",
+    "activePhase": "Complete",
     "taskBoard": {
-      "planned": [
+      "planned": [],
+      "current": [],
+      "completed": [
+        {
+          "id": "task-1",
+          "title": "Bootstrap package skeleton, docs scaffold, and dashboard",
+          "status": "completed",
+          "assignedTo": "workspace-agent",
+          "summary": "Created the child repo, package metadata, operator docs, and initial dashboard/status model.",
+          "lastUpdated": "2026-04-12T23:50:22+02:00",
+          "phase": "Task 1",
+          "completedAt": "2026-04-12T23:50:22+02:00"
+        },
         {
           "id": "task-2",
           "title": "Extract shared runtime core",
-          "status": "planned",
+          "status": "completed",
           "assignedTo": "workspace-agent",
-          "summary": "Move path, platform, policy, worker, and lifecycle helpers into core modules.",
-          "lastUpdated": "2026-04-12T00:00:00+02:00",
+          "summary": "Added shared path, platform, runtime-policy, worker-client, and lifecycle helpers under core/.",
+          "lastUpdated": "2026-04-13T00:06:50+02:00",
           "phase": "Task 2",
-          "createdAt": "2026-04-12T00:00:00+02:00"
+          "completedAt": "2026-04-13T00:06:50+02:00"
         },
         {
           "id": "task-3",
           "title": "Add shared agent-driven fallback commands",
-          "status": "planned",
-          "assignedTo": "workspace-agent",
-          "summary": "Create explicit lifecycle command entrypoints for fallback execution.",
-          "lastUpdated": "2026-04-12T00:00:00+02:00",
-          "phase": "Task 3",
-          "createdAt": "2026-04-12T00:00:00+02:00"
-        }
-      ],
-      "current": [
-        {
-          "id": "task-1-docs-dashboard",
-          "title": "Expand docs and dashboard for Task 1",
-          "status": "in_progress",
-          "assignedTo": "workspace-agent",
-          "summary": "Finish the operator-facing docs and dashboard contract for the package skeleton.",
-          "lastUpdated": "2026-04-12T00:00:00+02:00",
-          "phase": "Task 1",
-          "createdAt": "2026-04-12T00:00:00+02:00"
-        }
-      ],
-      "completed": [
-        {
-          "id": "task-1-bootstrap",
-          "title": "Bootstrap package skeleton",
           "status": "completed",
           "assignedTo": "workspace-agent",
-          "summary": "Create the package root, repo files, and initial metadata test.",
-          "lastUpdated": "2026-04-12T00:00:00+02:00",
-          "phase": "Task 1",
-          "completedAt": "2026-04-12T00:00:00+02:00"
+          "summary": "Added shared session-start, observe, stop, and session-end command entrypoints plus tests.",
+          "lastUpdated": "2026-04-13T00:11:25+02:00",
+          "phase": "Task 3",
+          "completedAt": "2026-04-13T00:11:25+02:00"
+        },
+        {
+          "id": "task-4",
+          "title": "Migrate Codex hooks onto the shared core",
+          "status": "completed",
+          "assignedTo": "workspace-agent",
+          "summary": "Moved Codex provider metadata and hook wrappers onto the shared lifecycle helpers.",
+          "lastUpdated": "2026-04-13T00:24:08+02:00",
+          "phase": "Task 4",
+          "completedAt": "2026-04-13T00:24:08+02:00"
+        },
+        {
+          "id": "task-5",
+          "title": "Build shared installer utilities and Codex installers",
+          "status": "completed",
+          "assignedTo": "workspace-agent",
+          "summary": "Added reusable installer helpers plus Codex install and uninstall flows with runtime-mode-aware hook handling.",
+          "lastUpdated": "2026-04-13T01:01:47+02:00",
+          "phase": "Task 5",
+          "completedAt": "2026-04-13T01:01:47+02:00"
+        },
+        {
+          "id": "task-6",
+          "title": "Create the shared claude-mem skill",
+          "status": "completed",
+          "assignedTo": "workspace-agent",
+          "summary": "Replaced the Codex-only skill with a shared cross-CLI claude-mem skill and validation tests.",
+          "lastUpdated": "2026-04-13T00:10:13+02:00",
+          "phase": "Task 6",
+          "completedAt": "2026-04-13T00:10:13+02:00"
+        },
+        {
+          "id": "task-7",
+          "title": "Write complete package docs",
+          "status": "completed",
+          "assignedTo": "workspace-agent",
+          "summary": "Realigned README, package docs, execution status, and dashboard fallback snapshot with the implemented Codex installer surface.",
+          "lastUpdated": "2026-04-13T01:01:47+02:00",
+          "phase": "Task 7",
+          "completedAt": "2026-04-13T01:01:47+02:00"
+        },
+        {
+          "id": "task-8",
+          "title": "Add Claude and Copilot adapters and installers",
+          "status": "completed",
+          "assignedTo": "Curie + Hegel",
+          "summary": "Implemented the Claude and Copilot provider slices, installer and uninstall flows, package scripts, and regression tests with parallel workers.",
+          "lastUpdated": "2026-04-13T01:26:19+02:00",
+          "phase": "Task 8",
+          "completedAt": "2026-04-13T01:26:19+02:00"
+        },
+        {
+          "id": "task-9",
+          "title": "Verify Codex parity and remove legacy codex-mem",
+          "status": "completed",
+          "assignedTo": "workspace-agent + Franklin + Erdos",
+          "summary": "Closed the remaining parity gaps, added Codex compatibility aliasing and prerequisite validation, and removed the legacy parent-workspace codex-mem directory.",
+          "lastUpdated": "2026-04-13T01:54:26+02:00",
+          "phase": "Task 9",
+          "completedAt": "2026-04-13T01:54:26+02:00"
         }
       ]
     },
     "activeTask": {
-      "title": "Expand docs and dashboard for Task 1",
-      "status": "in_progress",
-      "progress": 72,
+      "title": "Migration complete",
+      "status": "completed",
+      "progress": 100,
       "owner": "local workspace agent",
-      "assignedTo": "workspace-agent"
+      "assignedTo": "workspace-agent + Franklin + Erdos"
     },
     "spawnedAgents": [
       {
-        "nickname": "workspace-agent",
-        "agentType": "task-executor",
-        "model": "sonnet",
-        "context": "Task 1 doc and dashboard repair",
-        "responsibility": "keep the package skeleton, docs, and dashboard aligned with the task 1 contract",
-        "runtimeStatus": "in_progress"
+        "nickname": "Curie",
+        "agentType": "worker",
+        "model": "gpt-5.4-mini",
+        "context": "Task 8 Claude slice",
+        "responsibility": "implemented adapters/claude and installers/claude with tests",
+        "runtimeStatus": "completed"
+      },
+      {
+        "nickname": "Hegel",
+        "agentType": "worker",
+        "model": "gpt-5.4-mini",
+        "context": "Task 8 Copilot slice",
+        "responsibility": "implemented adapters/copilot and installers/copilot with tests",
+        "runtimeStatus": "completed"
+      },
+      {
+        "nickname": "Franklin",
+        "agentType": "explorer",
+        "model": "gpt-5.4-mini",
+        "context": "Task 9 Codex parity audit",
+        "responsibility": "compared legacy codex-mem behavior against claude-mem-plugin before deletion",
+        "runtimeStatus": "completed"
+      },
+      {
+        "nickname": "Erdos",
+        "agentType": "explorer",
+        "model": "gpt-5.4-mini",
+        "context": "Task 9 cleanup safety audit",
+        "responsibility": "verified parent-workspace references and deletion safety before removing codex-mem",
+        "runtimeStatus": "completed"
       }
     ],
     "queueSummary": {
-      "total": 1,
-      "active": 1,
+      "total": 9,
+      "active": 0,
       "blocked": 0,
       "queued": 0,
-      "completed": 0,
-      "progress": 72
+      "completed": 9,
+      "progress": 100
     },
-    "blockers": [
-      {
-        "title": "Spec-review findings need to be reflected in the docs and dashboard",
-        "status": "resolved"
-      }
-    ],
+    "blockers": [],
     "recentCommits": [
       {
-        "sha": "54db68b41cce1a6e4a2d75580a5f56974beeaaed",
-        "message": "docs: simplify task 1 dashboard and remove installer surface",
-        "authoredAt": "2026-04-12T00:00:00+02:00"
+        "sha": "0261550",
+        "message": "feat: migrate codex hooks onto shared core",
+        "authoredAt": "2026-04-13T00:24:08+02:00"
       },
       {
-        "sha": "f1d02652f6108b415f9d926545d6074f124e19dd",
-        "message": "docs: add task board ownership to dashboard",
-        "authoredAt": "2026-04-12T00:00:00+02:00"
+        "sha": "c264ba8",
+        "message": "test: exercise built fallback commands",
+        "authoredAt": "2026-04-13T00:19:15+02:00"
+      },
+      {
+        "sha": "5498461",
+        "message": "fix: expose direct fallback command entrypoints",
+        "authoredAt": "2026-04-13T00:17:05+02:00"
+      },
+      {
+        "sha": "2ba17b1",
+        "message": "docs: strengthen claude-mem skill contract",
+        "authoredAt": "2026-04-13T00:17:03+02:00"
+      },
+      {
+        "sha": "46fd558",
+        "message": "fix: make claude-mem skill test cwd-independent",
+        "authoredAt": "2026-04-13T00:13:03+02:00"
+      },
+      {
+        "sha": "122422d",
+        "message": "feat: add agent-driven fallback commands",
+        "authoredAt": "2026-04-13T00:11:25+02:00"
       }
     ]
   }

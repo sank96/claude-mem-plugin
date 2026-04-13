@@ -67,7 +67,7 @@ async function main() {
 
 if (require.main === module) {
   main().catch((error) => {
-    process.stderr.write(`[codex-mem] post-tool-use error: ${error.message}\n`);
+    process.stderr.write(`[claude-mem-plugin] codex post-tool-use error: ${error.message}\n`);
     process.exit(0);
   });
 }

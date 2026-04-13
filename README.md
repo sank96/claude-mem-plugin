@@ -1,103 +1,188 @@
 # claude-mem-plugin
 
-`claude-mem-plugin` is a standalone adapter package for integrating `claude-mem` with Codex, Claude Code, and Copilot CLI.
+[![CI](https://img.shields.io/github/actions/workflow/status/sank96/claude-mem-plugin/ci.yml?branch=main&label=ci)](https://github.com/sank96/claude-mem-plugin/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/sank96/claude-mem-plugin)](https://github.com/sank96/claude-mem-plugin/releases)
+[![License](https://img.shields.io/github/license/sank96/claude-mem-plugin)](https://github.com/sank96/claude-mem-plugin/blob/main/LICENSE)
+[![Issues](https://img.shields.io/github/issues/sank96/claude-mem-plugin)](https://github.com/sank96/claude-mem-plugin/issues)
+[![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 
-It is designed as a child repository with its own git history. The parent workspace is only a source and incubation area.
+`claude-mem-plugin` brings [claude-mem](https://github.com/thedotmack/claude-mem) to `Codex`, `Claude Code`, and `Copilot CLI`.
 
-## What it provides
+This repository is the adapter and distribution layer. It does not replace upstream `claude-mem`. It packages the shared skill, installer entrypoints, and CLI-specific runtime wiring needed to run the same memory workflow across multiple agent clients.
 
-- one shared `claude-mem` skill
-- a shared runtime core for lifecycle and policy decisions
-- CLI-specific adapters for Codex, Claude, and Copilot
-- package-local documentation and execution tracking
+The upstream [claude-mem documentation](https://docs.claude-mem.ai/introduction) remains the canonical reference for the memory engine itself.
 
-## How to think about it
+## Table of Contents
 
-The package supports two runtime modes:
+- [Why This Exists](#why-this-exists)
+- [Highlights](#highlights)
+- [Support Matrix](#support-matrix)
+- [Quick Start](#quick-start)
+- [Installers](#installers)
+- [Runtime Modes](#runtime-modes)
+- [Verification](#verification)
+- [Documentation](#documentation)
+- [Release Model](#release-model)
+- [Contributing](#contributing)
 
-- `hook-driven` means the host runtime fires lifecycle hooks automatically and the adapter can stay mostly invisible.
-- `agent-driven fallback` means the runtime is not reliable enough to trust hooks, so the agent explicitly performs memory lifecycle steps.
+## Why This Exists
 
-The important rule is that memory behavior still comes from `claude-mem`. This package only adapts how each CLI reaches it.
+`claude-mem` is the upstream memory engine. `claude-mem-plugin` is the portability layer that makes that workflow usable across multiple CLI environments without teaching users a different install and integration model for each client.
 
-## Planned package layout
+This package gives you:
 
-The current Task 1 repository does not yet contain the full implementation tree. The intended later structure is:
+- one shared `claude-mem` skill across supported CLIs
+- one installation surface for `Codex`, `Claude Code`, and `Copilot CLI`
+- one place to manage adapter policy, hook registration, and fallback behavior
+- one release artifact you can distribute through GitHub Releases
 
-- `core/` for shared runtime logic
-- `adapters/` for CLI-specific integration code
-- `installers/` for install and uninstall entrypoints
-- `skills/` for the shared `claude-mem` skill
-- `docs/` for operator docs and local dashboard files
+## Highlights
 
-Task 1 only includes the package shell, docs, dashboard, and tests that describe that future structure.
+- Shared memory skill for all supported CLIs
+- Dedicated installers for `Codex`, `Claude Code`, and `Copilot CLI`
+- One-shot setup with `npm run install:all`
+- Conservative runtime policy with Windows fallback mode
+- No `npm install` step required before running the installer scripts
 
-## Installation
+## Support Matrix
 
-Prerequisites:
+| Client | Status | Install command | Notes |
+| --- | --- | --- | --- |
+| Codex | Available | `npm run install:codex` | Installs the shared skill plus a backward-compatible `codex-mem` alias |
+| Claude Code | Available | `npm run install:claude` | Updates `.claude/settings.json` and installs the shared skill |
+| Copilot CLI | Available | `npm run install:copilot` | Updates `.copilot/mcp-config.json` and installs the shared skill |
 
-- Node.js 18 or newer
-- access to the target CLI configuration and skill paths
-- the upstream `claude-mem` worker and storage available in the expected environment
+Convenience commands:
 
-The runnable installer entrypoints are planned for Task 5. They are not part of the Task 1 surface yet, so this package does not advertise `install:*` or `uninstall:*` commands here.
+- `npm run install:all`
+- `npm run uninstall:all`
 
-### Planned for Task 5
+## Quick Start
 
-- Codex installer and uninstaller entrypoints
-- Claude installer and uninstaller entrypoints
-- Copilot installer and uninstaller entrypoints
+### Prerequisites
 
-## Installation flow
+- Node.js `18+`
+- upstream `claude-mem` already installed on the target machine
+- a local copy of this repository, either from GitHub Releases or a git clone
 
-When the installer surface exists in later tasks, every installer should do the same high-level work:
+### 1. Get the package
 
-1. verify prerequisites
-2. register the CLI adapter configuration
-3. install the shared `claude-mem` skill
-4. configure hooks only when the runtime policy allows it
-5. report whether the result is `hook-driven` or `agent-driven fallback`
+Choose one:
 
-Uninstallers must remove adapter-specific artifacts only. They must not delete upstream `claude-mem` data.
+- download the latest `.zip` from [Releases](https://github.com/sank96/claude-mem-plugin/releases)
+- clone the repository
 
-## Shared skill
+### 2. Open a terminal in the repository root
 
-The `claude-mem` skill teaches the same memory workflow across CLIs:
+Windows PowerShell:
 
-- search first for prior work
-- inspect the surrounding timeline when a match matters
-- fetch concrete observations before relying on them
-- explicitly close the lifecycle in fallback mode
+```powershell
+cd C:\tools\claude-mem-plugin
+```
 
-This package keeps the skill cross-CLI so operators do not have to learn a separate memory workflow for each adapter.
+macOS or Linux:
 
-## Runtime modes
+```bash
+cd ~/tools/claude-mem-plugin
+```
 
-- `hook-driven` means the host runtime triggers lifecycle hooks automatically.
-- `agent-driven fallback` means the agent explicitly performs lifecycle steps when hooks are unreliable or unavailable.
+`npm install` is not required before running the installer scripts.
 
-## Upgrade and uninstall
+### 3. Install for your client
 
-- Upgrade by revisiting this package after later tasks add the runnable installers.
-- Uninstall will be handled by the Task 5 adapter-specific entrypoints.
-- If a CLI is in `agent-driven fallback`, do not assume adapter removal changes upstream memory data.
+Codex:
 
-## Troubleshooting quick hits
+```bash
+npm run install:codex
+```
 
-- If hooks do not fire, check whether the platform is expected to use `agent-driven fallback`.
-- If a CLI cannot find the skill, confirm the package was installed from `claude-mem-plugin/`.
-- If the dashboard looks stale, refresh `docs/execution-status.json` and reopen `docs/dashboard.html`.
+Claude Code:
+
+```bash
+npm run install:claude
+```
+
+Copilot CLI:
+
+```bash
+npm run install:copilot
+```
+
+Install all supported clients on the same machine:
+
+```bash
+npm run install:all
+```
+
+Restart the target CLI after installation.
+
+## Installers
+
+| Client | Install | Uninstall |
+| --- | --- | --- |
+| Codex | `npm run install:codex` | `npm run uninstall:codex` |
+| Claude Code | `npm run install:claude` | `npm run uninstall:claude` |
+| Copilot CLI | `npm run install:copilot` | `npm run uninstall:copilot` |
+| All supported clients | `npm run install:all` | `npm run uninstall:all` |
+
+The `install:all` wrapper runs all three installers, prints one result line per adapter, and exits non-zero if any adapter fails.
+
+## Runtime Modes
+
+The package currently uses two operating modes:
+
+- `hook-driven`: the host runtime reliably triggers lifecycle hooks
+- `agent-driven fallback`: the agent performs lifecycle steps explicitly when hooks are unavailable or not trusted
+
+Current policy:
+
+- macOS and other non-Windows platforms default to `hook-driven`
+- Windows defaults to `agent-driven fallback`
+
+## Verification
+
+Check the target files below after installation:
+
+- Codex: `~/.codex/config.toml`, `~/.codex/hooks.json`, `~/.agents/skills/claude-mem/`
+- Claude Code: `~/.claude/settings.json`, `~/.claude/skills/claude-mem/`
+- Copilot CLI: `~/.copilot/mcp-config.json`, `~/.copilot/skills/claude-mem/`
+
+If you are migrating an older Codex-only setup, the installer also writes a compatibility `codex-mem` skill alias.
 
 ## Documentation
 
-- [Architecture](docs/architecture.md)
 - [Installation](docs/installation.md)
+- [Architecture](docs/architecture.md)
 - [Lifecycle](docs/lifecycle.md)
 - [Support matrix](docs/support-matrix.md)
 - [Troubleshooting](docs/troubleshooting.md)
-- [Execution status](docs/execution-status.md)
+- [GitHub release playbook](docs/releasing.md)
+- [Future npm and npx release plan](docs/future-npm-release.md)
 
-## Status dashboard
+## Release Model
 
-Open `docs/dashboard.html` in a browser to inspect `docs/execution-status.json`.
-If you open the file directly from disk and want the live status JSON, use the built-in file picker in the dashboard to load the current local `execution-status.json`.
+Current distribution channel:
+
+- GitHub repository
+- GitHub Releases with versioned `.zip` assets
+
+Planned future channel:
+
+- public `npm` package
+- `npx` install surface after a dedicated CLI entrypoint is added
+
+That future work is tracked in [docs/future-npm-release.md](docs/future-npm-release.md).
+
+## Contributing
+
+Contributions are welcome. Start with:
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [SECURITY.md](SECURITY.md)
+
+For local verification:
+
+```bash
+node --test
+```

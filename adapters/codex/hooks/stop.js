@@ -59,7 +59,7 @@ async function main() {
 
 if (require.main === module) {
   main().catch((error) => {
-    process.stderr.write(`[codex-mem] stop error: ${error.message}\n`);
+    process.stderr.write(`[claude-mem-plugin] codex stop error: ${error.message}\n`);
     process.exit(0);
   });
 }

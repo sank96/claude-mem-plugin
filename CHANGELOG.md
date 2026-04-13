@@ -1,0 +1,27 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.1.0] - 2026-04-13
+
+### Added
+
+- Initial public package for distributing `claude-mem` adapters across `Codex`, `Claude Code`, and `Copilot CLI`
+- Shared `claude-mem` skill delivery across all supported clients
+- Installer and uninstaller entrypoints for each supported CLI
+- Batch commands: `npm run install:all` and `npm run uninstall:all`
+- Public release documentation for GitHub Releases
+- Future packaging plan for `npm` and `npx`
+- Open source repository surface:
+  - license
+  - changelog
+  - contributing guide
+  - code of conduct
+  - security policy
+  - issue templates
+  - CI workflow

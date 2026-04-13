@@ -5,3 +5,9 @@ dist/
 npm-debug.log*
 docs/.cache/
 docs/generated/
+.idea/
+.vscode/
+*.log
+*.local
+*.tmp
+Thumbs.db

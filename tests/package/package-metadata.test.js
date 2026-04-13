@@ -7,10 +7,22 @@ test('package metadata and docs entrypoints exist', () => {
   const root = path.resolve(__dirname, '..', '..');
   assert.equal(fs.existsSync(path.join(root, 'package.json')), true);
   assert.equal(fs.existsSync(path.join(root, 'README.md')), true);
+  assert.equal(fs.existsSync(path.join(root, 'LICENSE')), true);
+  assert.equal(fs.existsSync(path.join(root, 'CHANGELOG.md')), true);
+  assert.equal(fs.existsSync(path.join(root, 'CONTRIBUTING.md')), true);
+  assert.equal(fs.existsSync(path.join(root, 'CODE_OF_CONDUCT.md')), true);
+  assert.equal(fs.existsSync(path.join(root, 'SECURITY.md')), true);
   assert.equal(fs.existsSync(path.join(root, 'docs', 'architecture.md')), true);
   assert.equal(fs.existsSync(path.join(root, 'docs', 'dashboard.html')), true);
   assert.equal(fs.existsSync(path.join(root, 'docs', 'execution-status.md')), true);
   assert.equal(fs.existsSync(path.join(root, 'docs', 'execution-status.json')), true);
+  assert.equal(fs.existsSync(path.join(root, 'docs', 'releasing.md')), true);
+  assert.equal(fs.existsSync(path.join(root, 'docs', 'future-npm-release.md')), true);
+  assert.equal(fs.existsSync(path.join(root, '.github', 'workflows', 'ci.yml')), true);
+  assert.equal(fs.existsSync(path.join(root, '.github', 'ISSUE_TEMPLATE', 'bug_report.yml')), true);
+  assert.equal(fs.existsSync(path.join(root, '.github', 'ISSUE_TEMPLATE', 'feature_request.yml')), true);
+  assert.equal(fs.existsSync(path.join(root, '.github', 'ISSUE_TEMPLATE', 'config.yml')), true);
+  assert.equal(fs.existsSync(path.join(root, '.github', 'PULL_REQUEST_TEMPLATE.md')), true);
 });
 
 test('package metadata is minimally valid', () => {
@@ -18,7 +30,21 @@ test('package metadata is minimally valid', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   assert.equal(pkg.name, 'claude-mem-plugin');
   assert.equal(pkg.private, true);
+  assert.equal(pkg.homepage, 'https://github.com/sank96/claude-mem-plugin#readme');
+  assert.equal(pkg.repository.type, 'git');
+  assert.equal(pkg.repository.url, 'git+https://github.com/sank96/claude-mem-plugin.git');
+  assert.equal(pkg.bugs.url, 'https://github.com/sank96/claude-mem-plugin/issues');
   assert.equal(pkg.engines.node, '>=18');
-  assert.equal(pkg.scripts.test, 'node --test tests/package/package-metadata.test.js tests/docs/task1-contract.test.js');
-  assert.equal(Object.keys(pkg.scripts).length, 1);
+  assert.ok(Array.isArray(pkg.keywords));
+  assert.ok(pkg.keywords.includes('claude-mem'));
+  assert.equal(pkg.scripts.test, 'node --test');
+  assert.equal(pkg.scripts['install:codex'], 'node installers/codex/install.js');
+  assert.equal(pkg.scripts['install:all'], 'node installers/install-all.js');
+  assert.equal(pkg.scripts['uninstall:codex'], 'node installers/codex/uninstall.js');
+  assert.equal(pkg.scripts['install:claude'], 'node installers/claude/install.js');
+  assert.equal(pkg.scripts['uninstall:claude'], 'node installers/claude/uninstall.js');
+  assert.equal(pkg.scripts['install:copilot'], 'node installers/copilot/install.js');
+  assert.equal(pkg.scripts['uninstall:copilot'], 'node installers/copilot/uninstall.js');
+  assert.equal(pkg.scripts['uninstall:all'], 'node installers/uninstall-all.js');
+  assert.equal(Object.keys(pkg.scripts).length, 9);
 });

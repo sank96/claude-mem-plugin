@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: claude-mem upstream docs
+    url: https://docs.claude-mem.ai/introduction
+    about: Read the upstream documentation before filing integration questions about the memory engine itself.
+  - name: claude-mem upstream repository
+    url: https://github.com/thedotmack/claude-mem
+    about: Use the upstream repository for engine-specific issues unrelated to this adapter package.

@@ -1,15 +1,16 @@
 # Support Matrix
 
-The table below reflects the Task 1 policy, not a claim that every host runtime is equally mature.
+The table below reflects the current implementation status, not a promise that every host runtime is equally mature.
 
-| CLI | macOS | Windows |
-| --- | --- | --- |
-| Codex | hook-driven | agent-driven fallback |
-| Claude | hook-driven | agent-driven fallback |
-| Copilot CLI | hook-driven when validated | agent-driven fallback |
+| CLI | Installer status | Integration surface | macOS / non-Windows | Windows |
+| --- | --- | --- | --- | --- |
+| Codex | available now | MCP config + shared skill + native hook registration | hook-driven | agent-driven fallback |
+| Claude | available now | `.claude/settings.json` hooks + shared skill | hook-driven | agent-driven fallback |
+| Copilot CLI | available now | `.copilot/mcp-config.json` + shared skill | hook-driven policy | agent-driven fallback |
 
 ## Notes
 
-- Codex is the first migration target and should be treated as the most important baseline.
+- Codex remains the baseline migration target and the most battle-tested path.
 - Windows remains conservative because hook behavior is not trusted as a default.
-- Copilot CLI stays conditional on validation so the docs do not overstate support.
+- Claude and Copilot now have runnable installer surfaces in this package.
+- Copilot CLI currently centers on MCP registration and shared-skill delivery through the package installer.
