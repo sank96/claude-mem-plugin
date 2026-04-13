@@ -7,6 +7,19 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-04-13
+
+### Changed
+
+- README now presents the public npm install flow first, with `npx claude-mem-plugin ...` and optional `npm install -g claude-mem-plugin`
+- Source checkout and release-zip installation guidance moved into `docs/from-source.md` for contributors and maintainers
+- Installation docs now describe `npx` and global install as the primary public entrypoints
+
+### Fixed
+
+- Quick start no longer mixes end-user package installation with contributor checkout workflows
+- Documentation now makes the package and CLI name `claude-mem-plugin` explicit in the onboarding path
+
 ## [0.1.1] - 2026-04-13
 
 ### Changed

@@ -5,7 +5,7 @@ This document tracks the current public npm distribution for `claude-mem-plugin`
 Current state:
 
 - distribution is available through `npm`, `npx`, the GitHub repository, and GitHub Releases
-- the package is published as `claude-mem-plugin@0.1.1`
+- the package is published as `claude-mem-plugin@0.1.2`
 - the public CLI entrypoint is live
 - public install and reinstall flows have been smoke-tested from the published package
 

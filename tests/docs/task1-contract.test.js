@@ -12,14 +12,14 @@ test('README covers operator essentials and current installer availability', () 
   const readme = read('README.md');
   assert.match(readme, /github\.com\/thedotmack\/claude-mem/i);
   assert.match(readme, /docs\.claude-mem\.ai/i);
-  assert.match(readme, /npm run install:all/i);
-  assert.match(readme, /npm run uninstall:all/i);
-  assert.match(readme, /npm run install:codex/i);
-  assert.match(readme, /npm run install:claude/i);
-  assert.match(readme, /npm run install:copilot/i);
+  assert.match(readme, /npx claude-mem-plugin install all/i);
+  assert.match(readme, /npx claude-mem-plugin uninstall all/i);
+  assert.match(readme, /npx claude-mem-plugin install codex/i);
+  assert.match(readme, /npx claude-mem-plugin install claude/i);
+  assert.match(readme, /npx claude-mem-plugin install copilot/i);
   assert.match(readme, /Table of contents/i);
   assert.match(readme, /Quick Start/i);
-  assert.match(readme, /cd C:\\tools\\claude-mem-plugin/i);
+  assert.match(readme, /package name and CLI command: `claude-mem-plugin`/i);
   assert.match(readme, /Codex/i);
   assert.match(readme, /Claude/i);
   assert.match(readme, /Copilot/i);
@@ -28,25 +28,25 @@ test('README covers operator essentials and current installer availability', () 
   assert.match(readme, /agent-driven fallback/i);
   assert.match(readme, /uninstall/i);
   assert.match(readme, /Release Model/i);
-  assert.match(readme, /npm run uninstall:claude/i);
-  assert.match(readme, /npm run uninstall:copilot/i);
   assert.match(readme, /docs\/releasing\.md/i);
   assert.match(readme, /docs\/npm-and-npx\.md/i);
+  assert.match(readme, /docs\/from-source\.md/i);
   assert.match(readme, /npm install -g claude-mem-plugin/i);
+  assert.doesNotMatch(readme, /download the latest `\.zip`/i);
 });
 
-test('installation docs advertise runnable install surfaces for all CLIs', () => {
+test('installation docs advertise public install surfaces for all CLIs', () => {
   const installation = read('docs/installation.md');
-  assert.match(installation, /npm run install:all/i);
-  assert.match(installation, /npm run uninstall:all/i);
-  assert.match(installation, /npm run install:codex/i);
-  assert.match(installation, /npm run install:claude/i);
-  assert.match(installation, /npm run install:copilot/i);
+  assert.match(installation, /npx claude-mem-plugin install all/i);
+  assert.match(installation, /npx claude-mem-plugin uninstall all/i);
+  assert.match(installation, /npx claude-mem-plugin install codex/i);
+  assert.match(installation, /npx claude-mem-plugin install claude/i);
+  assert.match(installation, /npx claude-mem-plugin install copilot/i);
+  assert.match(installation, /npm install -g claude-mem-plugin/i);
   assert.match(installation, /Codex/i);
   assert.match(installation, /Claude/i);
   assert.match(installation, /Copilot/i);
-  assert.match(installation, /npm run uninstall:claude/i);
-  assert.match(installation, /npm run uninstall:copilot/i);
+  assert.match(installation, /from-source\.md/i);
 });
 
 test('execution status schema exposes dashboard fields', () => {

@@ -11,39 +11,14 @@ Current state:
 ## Common prerequisites
 
 - Node.js 18 or newer
-- a working checkout of `claude-mem-plugin`
 - access to the target CLI's configuration and skill directories
 - the upstream `claude-mem` worker environment already available
 
-Before running an installer, open a terminal in the package root:
-
-```powershell
-cd C:\path\to\claude-mem-plugin
-```
-
-```bash
-cd /path/to/claude-mem-plugin
-```
-
-This package currently has no external npm dependencies, so `npm install` is not required before `npm run install:*`.
-
-## Install everything at once
-
-If the same machine uses `Codex`, `Claude Code`, and `Copilot CLI`, you can install every supported adapter in one run:
-
-`npm run install:all`
-
-The wrapper executes all three installers, prints one result line per adapter, and exits non-zero if any adapter fails.
-
-To remove all three integrations in one run:
-
-`npm run uninstall:all`
-
 ## Codex
 
-Run:
+Fastest path:
 
-`npm run install:codex`
+`npx claude-mem-plugin install codex`
 
 The installer:
 
@@ -57,15 +32,15 @@ The installer:
 
 Remove the Codex integration with:
 
-`npm run uninstall:codex`
+`npx claude-mem-plugin uninstall codex`
 
 The uninstaller removes only the Codex-specific MCP block, hooks, the copied shared skill directory, and any leftover `codex-mem` compatibility alias.
 
 ## Claude
 
-Run:
+Fastest path:
 
-`npm run install:claude`
+`npx claude-mem-plugin install claude`
 
 The installer:
 
@@ -76,15 +51,15 @@ The installer:
 
 Remove the Claude integration with:
 
-`npm run uninstall:claude`
+`npx claude-mem-plugin uninstall claude`
 
 The uninstaller removes only the Claude hook config entries and copied skill directory.
 
 ## Copilot
 
-Run:
+Fastest path:
 
-`npm run install:copilot`
+`npx claude-mem-plugin install copilot`
 
 The installer:
 
@@ -95,9 +70,28 @@ The installer:
 
 Remove the Copilot integration with:
 
-`npm run uninstall:copilot`
+`npx claude-mem-plugin uninstall copilot`
 
 The uninstaller removes only the Copilot MCP config entry and copied skill directory.
+
+## Install everything at once
+
+If the same machine uses `Codex`, `Claude Code`, and `Copilot CLI`, you can install every supported adapter in one run:
+
+`npx claude-mem-plugin install all`
+
+To remove all three integrations in one run:
+
+`npx claude-mem-plugin uninstall all`
+
+## Optional global install
+
+If you prefer a persistent command instead of `npx`, install the package globally once:
+
+```bash
+npm install -g claude-mem-plugin
+claude-mem-plugin install codex
+```
 
 ## Runtime policy
 
@@ -111,3 +105,7 @@ The uninstaller removes only the Copilot MCP config entry and copied skill direc
 - If the wrong mode is reported, verify the platform passed through the shared runtime policy.
 - If hooks are missing on Windows, that is expected because fallback mode does not write them.
 - If Copilot does not see the MCP server, inspect `.copilot/mcp-config.json`.
+
+## Working from a local checkout or release zip
+
+If you are installing from a git clone, validating a release archive, or contributing to the package itself, use [docs/from-source.md](from-source.md).

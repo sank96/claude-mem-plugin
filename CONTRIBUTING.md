@@ -5,6 +5,7 @@ Thanks for contributing to `claude-mem-plugin`.
 ## Before You Start
 
 - read the [README](README.md)
+- read [docs/from-source.md](docs/from-source.md) if you are testing from a checkout or release zip
 - check existing [issues](https://github.com/sank96/claude-mem-plugin/issues)
 - open a discussion through an issue before large changes
 
@@ -14,6 +15,8 @@ Prerequisites:
 
 - Node.js `18+`
 - upstream `claude-mem` available if you are working on adapter integration paths
+
+For checkout-based installs and uninstall flows, use [docs/from-source.md](docs/from-source.md).
 
 Run tests from the repository root:
 

@@ -18,11 +18,8 @@ test('README presents the public distribution and install surface clearly', () =
   assert.match(readme, /GitHub Releases/i);
   assert.match(readme, /npx-ready/i);
   assert.match(readme, /npx claude-mem-plugin install codex/i);
-  assert.match(readme, /npm run install:all/i);
-  assert.match(readme, /npm run uninstall:all/i);
-  assert.match(readme, /npm run install:codex/i);
-  assert.match(readme, /npm run install:claude/i);
-  assert.match(readme, /npm run install:copilot/i);
+  assert.match(readme, /npx claude-mem-plugin install all/i);
+  assert.match(readme, /npx claude-mem-plugin uninstall all/i);
   assert.match(readme, /Support Matrix/i);
   assert.match(readme, /Available/i);
   assert.match(readme, /Table of Contents/i);
@@ -31,7 +28,10 @@ test('README presents the public distribution and install surface clearly', () =
   assert.match(readme, /GitHub release playbook/i);
   assert.match(readme, /npm and npx distribution status/i);
   assert.match(readme, /npm install -g claude-mem-plugin/i);
-  assert.match(readme, /npm install` is not required before running the installer scripts/i);
+  assert.match(readme, /package name and CLI command: `claude-mem-plugin`/i);
+  assert.match(readme, /docs\/from-source\.md/i);
+  assert.doesNotMatch(readme, /download the latest `\.zip`/i);
+  assert.doesNotMatch(readme, /clone the repository/i);
 });
 
 test('release operations docs exist and describe GitHub and npm release paths', () => {

@@ -19,7 +19,7 @@ The upstream [claude-mem documentation](https://docs.claude-mem.ai/introduction)
 - [Highlights](#highlights)
 - [Support Matrix](#support-matrix)
 - [Quick Start](#quick-start)
-- [Installers](#installers)
+- [CLI Commands](#cli-commands)
 - [Runtime Modes](#runtime-modes)
 - [Verification](#verification)
 - [Documentation](#documentation)
@@ -41,24 +41,24 @@ This package gives you:
 
 - Shared memory skill for all supported CLIs
 - Dedicated installers for `Codex`, `Claude Code`, and `Copilot CLI`
-- One-shot setup with `npm run install:all`
+- One-shot setup with `npx claude-mem-plugin install all`
 - Public CLI surface ready for `npx claude-mem-plugin ...`
 - Optional global install with `npm install -g claude-mem-plugin`
 - Conservative runtime policy with Windows fallback mode
-- No `npm install` step required before running the installer scripts
+- Separate source-install flow for contributors and maintainers
 
 ## Support Matrix
 
 | Client | Status | Install command | Notes |
 | --- | --- | --- | --- |
-| Codex | Available | `npm run install:codex` | Installs the shared skill and removes any legacy `codex-mem` alias during reinstall |
-| Claude Code | Available | `npm run install:claude` | Updates `.claude/settings.json` and installs the shared skill |
-| Copilot CLI | Available | `npm run install:copilot` | Updates `.copilot/mcp-config.json` and installs the shared skill |
+| Codex | Available | `npx claude-mem-plugin install codex` | Installs the shared skill and removes any legacy `codex-mem` alias during reinstall |
+| Claude Code | Available | `npx claude-mem-plugin install claude` | Updates `.claude/settings.json` and installs the shared skill |
+| Copilot CLI | Available | `npx claude-mem-plugin install copilot` | Updates `.copilot/mcp-config.json` and installs the shared skill |
 
 Convenience commands:
 
-- `npm run install:all`
-- `npm run uninstall:all`
+- `npx claude-mem-plugin install all`
+- `npx claude-mem-plugin uninstall all`
 
 ## Quick Start
 
@@ -66,62 +66,9 @@ Convenience commands:
 
 - Node.js `18+`
 - upstream `claude-mem` already installed on the target machine
-- a local copy of this repository, either from GitHub Releases or a git clone
+- package name and CLI command: `claude-mem-plugin`
 
-### 1. Get the package
-
-Choose one:
-
-- download the latest `.zip` from [Releases](https://github.com/sank96/claude-mem-plugin/releases)
-- clone the repository
-
-### 2. Open a terminal in the repository root
-
-Windows PowerShell:
-
-```powershell
-cd C:\tools\claude-mem-plugin
-```
-
-macOS or Linux:
-
-```bash
-cd ~/tools/claude-mem-plugin
-```
-
-`npm install` is not required before running the installer scripts.
-
-### 3. Install for your client
-
-Codex:
-
-```bash
-npm run install:codex
-```
-
-Claude Code:
-
-```bash
-npm run install:claude
-```
-
-Copilot CLI:
-
-```bash
-npm run install:copilot
-```
-
-Install all supported clients on the same machine:
-
-```bash
-npm run install:all
-```
-
-Restart the target CLI after installation.
-
-### npm and npx
-
-The package is published to npm. You can install or run it directly with:
+### 1. Run it directly with `npx`
 
 ```bash
 npx claude-mem-plugin install codex
@@ -130,25 +77,32 @@ npx claude-mem-plugin install copilot
 npx claude-mem-plugin install all
 ```
 
-Optional global install:
+### 2. Or install it globally once
 
 ```bash
 npm install -g claude-mem-plugin
 claude-mem-plugin install codex
+claude-mem-plugin install all
 ```
 
-For tarball validation and release steps, see [docs/releasing.md](docs/releasing.md).
+### 3. Restart the target CLI
 
-## Installers
+Restart `Codex`, `Claude Code`, or `Copilot CLI` after installation so the new config and shared skill are reloaded.
+
+### 4. Installing from a zip or git clone
+
+That path is only for contributors, maintainers, or local source validation. Use [docs/from-source.md](docs/from-source.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## CLI Commands
 
 | Client | Install | Uninstall |
 | --- | --- | --- |
-| Codex | `npm run install:codex` | `npm run uninstall:codex` |
-| Claude Code | `npm run install:claude` | `npm run uninstall:claude` |
-| Copilot CLI | `npm run install:copilot` | `npm run uninstall:copilot` |
-| All supported clients | `npm run install:all` | `npm run uninstall:all` |
+| Codex | `npx claude-mem-plugin install codex` | `npx claude-mem-plugin uninstall codex` |
+| Claude Code | `npx claude-mem-plugin install claude` | `npx claude-mem-plugin uninstall claude` |
+| Copilot CLI | `npx claude-mem-plugin install copilot` | `npx claude-mem-plugin uninstall copilot` |
+| All supported clients | `npx claude-mem-plugin install all` | `npx claude-mem-plugin uninstall all` |
 
-The `install:all` wrapper runs all three installers, prints one result line per adapter, and exits non-zero if any adapter fails.
+The same subcommands work after `npm install -g claude-mem-plugin`.
 
 ## Runtime Modes
 
@@ -177,6 +131,7 @@ If you are migrating an older Codex-only setup, the installer removes any leftov
 - [Installation](docs/installation.md)
 - [Architecture](docs/architecture.md)
 - [Lifecycle](docs/lifecycle.md)
+- [Install from source](docs/from-source.md)
 - [Support matrix](docs/support-matrix.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [GitHub release playbook](docs/releasing.md)
@@ -198,6 +153,7 @@ Current npm distribution details are tracked in [docs/npm-and-npx.md](docs/npm-a
 Contributions are welcome. Start with:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)
+- [Install from source](docs/from-source.md)
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 - [SECURITY.md](SECURITY.md)
 
