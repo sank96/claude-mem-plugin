@@ -11,6 +11,7 @@ docs/generated/
 *.local
 *.tmp
 *.tgz
+ruvector.db
 Thumbs.db
 .superpowers/
 docs/HANDOFF-*.md
