@@ -7,6 +7,27 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-04-13
+
+### Added
+
+- Added a read-only `claude-mem-plugin doctor` command to verify upstream discovery and per-adapter install state
+- Added shared installer state primitives for version markers, skip or update decisions, and rollback snapshots
+- Added prerequisite validation for Claude Code and Copilot installer flows
+- Added `docs/upstream-compatibility.md` to document the upstream runtime contract
+
+### Changed
+
+- Codex, Claude Code, and Copilot installers now support idempotent install, update, and skip behavior through per-adapter version markers
+- `install all` now treats skipped adapters as successful no-ops while still failing on real adapter errors
+- Copilot runtime policy is now documented and enforced as `agent-driven fallback` on every platform
+
+### Fixed
+
+- Installer failures now attempt per-adapter rollback instead of leaving partial config behind
+- Documentation now aligns the install surface, upgrade path, runtime modes, and diagnostic flow
+- Removed internal `docs/superpowers` artifacts from the published repository history and current tree
+
 ## [0.1.3] - 2026-04-13
 
 ### Changed
