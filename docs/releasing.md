@@ -78,7 +78,7 @@ git archive --format=zip --prefix="claude-mem-plugin-v$version/" --output=".\dis
 
 ### 4b. Build the npm tarball for self-test
 
-If you want to validate the future `npx` surface before publishing, build the npm tarball locally:
+If you want to validate the published CLI surface before pushing a release, build the npm tarball locally:
 
 ```powershell
 npm pack

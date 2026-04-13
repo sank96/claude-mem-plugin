@@ -77,8 +77,8 @@ test('codex installer configures hooks on hook-driven platforms', async () => {
 
   const installedSkill = path.join(skillRoot, 'claude-mem', 'SKILL.md');
   assert.equal(fs.existsSync(installedSkill), true);
-  const installedCompatibilitySkill = path.join(skillRoot, 'codex-mem', 'SKILL.md');
-  assert.equal(fs.existsSync(installedCompatibilitySkill), true);
+  const installedCompatibilitySkill = path.join(skillRoot, 'codex-mem');
+  assert.equal(fs.existsSync(installedCompatibilitySkill), false);
 });
 
 test('codex installer skips hooks on windows fallback mode', async () => {
@@ -187,6 +187,29 @@ test('codex installer restores the parent mcp block before orphaned tool tables'
     configToml.indexOf('[mcp_servers.claude-mem]') <
       configToml.indexOf('[mcp_servers.claude-mem.tools.search]')
   );
+});
+
+test('codex installer removes an existing legacy codex-mem alias during reinstall', async () => {
+  const tempDir = makeTempDir();
+  const codexHome = path.join(tempDir, '.codex');
+  const skillRoot = path.join(tempDir, '.agents', 'skills');
+  const packageRoot = path.join(__dirname, '..', '..');
+  const upstreamPaths = writeFakeUpstream(tempDir);
+
+  fs.mkdirSync(path.join(skillRoot, 'codex-mem'), { recursive: true });
+  fs.writeFileSync(path.join(skillRoot, 'codex-mem', 'SKILL.md'), 'legacy alias\n', 'utf8');
+
+  const { installCodexAdapter } = require('../../installers/codex/install.js');
+  await installCodexAdapter({
+    platform: 'win32',
+    packageRoot,
+    codexHome,
+    skillRoot,
+    upstreamPaths,
+  });
+
+  assert.equal(fs.existsSync(path.join(skillRoot, 'claude-mem', 'SKILL.md')), true);
+  assert.equal(fs.existsSync(path.join(skillRoot, 'codex-mem')), false);
 });
 
 test('codex uninstall removes hook config, mcp block, and shared skill', async () => {

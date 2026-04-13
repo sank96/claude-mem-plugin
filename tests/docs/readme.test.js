@@ -29,13 +29,14 @@ test('README presents the public distribution and install surface clearly', () =
   assert.match(readme, /Quick Start/i);
   assert.match(readme, /Runtime Modes/i);
   assert.match(readme, /GitHub release playbook/i);
-  assert.match(readme, /Future npm and npx release plan/i);
+  assert.match(readme, /npm and npx distribution status/i);
+  assert.match(readme, /npm install -g claude-mem-plugin/i);
   assert.match(readme, /npm install` is not required before running the installer scripts/i);
 });
 
 test('release operations docs exist and describe GitHub and npm release paths', () => {
   const releasing = read('docs/releasing.md');
-  const futureNpm = read('docs/future-npm-release.md');
+  const futureNpm = read('docs/npm-and-npx.md');
 
   assert.match(releasing, /GitHub Release Playbook/i);
   assert.match(releasing, /npm run install:all/i);
@@ -45,9 +46,10 @@ test('release operations docs exist and describe GitHub and npm release paths', 
   assert.match(releasing, /Get-FileHash/i);
   assert.match(releasing, /Releases/i);
 
-  assert.match(futureNpm, /Future npm and npx Release Plan/i);
+  assert.match(futureNpm, /npm and npx Distribution Status/i);
   assert.match(futureNpm, /npx claude-mem-plugin install codex/i);
-  assert.match(futureNpm, /npm-ready/i);
+  assert.match(futureNpm, /npm install -g claude-mem-plugin/i);
+  assert.match(futureNpm, /published npm tarball/i);
   assert.match(futureNpm, /\bbin\b/i);
 });
 

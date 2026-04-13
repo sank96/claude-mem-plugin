@@ -50,15 +50,16 @@ The installer:
 1. verifies the upstream `claude-mem` runtime exposes Codex support
 2. resolves the upstream `claude-mem` MCP server
 3. writes the Codex MCP block into `.codex/config.toml`
-4. copies the shared `claude-mem` skill and a compatibility `codex-mem` alias into the host skill path
-5. writes Codex hook entries only when the runtime policy is `hook-driven`
-6. prints the selected mode summary
+4. installs the shared `claude-mem` skill into the host skill path
+5. removes any legacy `codex-mem` compatibility alias from older Codex-only installs
+6. writes Codex hook entries only when the runtime policy is `hook-driven`
+7. prints the selected mode summary
 
 Remove the Codex integration with:
 
 `npm run uninstall:codex`
 
-The uninstaller removes only the Codex-specific MCP block, hooks, copied shared skill directory, and the compatibility `codex-mem` alias.
+The uninstaller removes only the Codex-specific MCP block, hooks, the copied shared skill directory, and any leftover `codex-mem` compatibility alias.
 
 ## Claude
 

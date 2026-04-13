@@ -7,6 +7,18 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-04-13
+
+### Changed
+
+- Codex installs now keep only the canonical `claude-mem` skill and remove the legacy `codex-mem` alias during reinstall
+- npm and `npx` documentation now describes the currently published install surface instead of a future release plan
+
+### Fixed
+
+- Codex skill discovery no longer shows the installed legacy alias as a second `claude-mem` entry after reinstall
+- Documentation links now point to the current npm and `npx` guide under `docs/npm-and-npx.md`
+
 ## [0.1.0] - 2026-04-13
 
 ### Added

@@ -31,7 +31,8 @@ test('README covers operator essentials and current installer availability', () 
   assert.match(readme, /npm run uninstall:claude/i);
   assert.match(readme, /npm run uninstall:copilot/i);
   assert.match(readme, /docs\/releasing\.md/i);
-  assert.match(readme, /docs\/future-npm-release\.md/i);
+  assert.match(readme, /docs\/npm-and-npx\.md/i);
+  assert.match(readme, /npm install -g claude-mem-plugin/i);
 });
 
 test('installation docs advertise runnable install surfaces for all CLIs', () => {

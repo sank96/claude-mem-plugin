@@ -12,7 +12,7 @@ const {
   writeJson,
   writeText,
 } = require('../shared/file-utils.js');
-const { installSharedSkill } = require('../shared/skill-utils.js');
+const { installSharedSkill, uninstallSharedSkill } = require('../shared/skill-utils.js');
 const { normalizeRuntimeMode, summarizeInstallMode } = require('../shared/summary.js');
 
 const MCP_BLOCK_MARKER = '# claude-mem-plugin MCP server';
@@ -264,16 +264,17 @@ async function installCodexAdapter(options = {}) {
   const nextConfig = upsertCodexMcpBlock(configToml, paths.mcpServer);
   writeText(paths.configFile, nextConfig);
 
-  const skillPaths = installSharedSkill({
-    packageRoot: paths.packageRoot,
-    skillRoot: options.skillRoot,
-    skillName: 'claude-mem',
-  });
-  const compatibilitySkillPaths = installSharedSkill({
+  uninstallSharedSkill({
     packageRoot: paths.packageRoot,
     skillRoot: options.skillRoot,
     sourceSkillName: 'claude-mem',
     targetSkillName: LEGACY_CODEX_SKILL_NAME,
+  });
+
+  const skillPaths = installSharedSkill({
+    packageRoot: paths.packageRoot,
+    skillRoot: options.skillRoot,
+    skillName: 'claude-mem',
   });
 
   return {
@@ -283,7 +284,6 @@ async function installCodexAdapter(options = {}) {
     mcpServer: paths.mcpServer,
     runtimeMode,
     skillDir: skillPaths.targetDir,
-    compatibilitySkillDir: compatibilitySkillPaths.targetDir,
     summary: summarizeInstallMode({
       adapter: provider.adapter,
       platform: options.platform,

@@ -17,7 +17,7 @@ test('package metadata and docs entrypoints exist', () => {
   assert.equal(fs.existsSync(path.join(root, 'docs', 'execution-status.md')), true);
   assert.equal(fs.existsSync(path.join(root, 'docs', 'execution-status.json')), true);
   assert.equal(fs.existsSync(path.join(root, 'docs', 'releasing.md')), true);
-  assert.equal(fs.existsSync(path.join(root, 'docs', 'future-npm-release.md')), true);
+  assert.equal(fs.existsSync(path.join(root, 'docs', 'npm-and-npx.md')), true);
   assert.equal(fs.existsSync(path.join(root, '.github', 'workflows', 'ci.yml')), true);
   assert.equal(fs.existsSync(path.join(root, '.github', 'ISSUE_TEMPLATE', 'bug_report.yml')), true);
   assert.equal(fs.existsSync(path.join(root, '.github', 'ISSUE_TEMPLATE', 'feature_request.yml')), true);
