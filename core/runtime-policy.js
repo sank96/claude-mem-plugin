@@ -6,6 +6,10 @@ function selectRuntimePolicy(options = {}) {
   const adapter = String(options.adapter ?? 'codex').trim().toLowerCase();
   const platform = normalizePlatform(options.platform);
 
+  if (adapter === 'copilot') {
+    return 'agent-driven';
+  }
+
   if (platform === 'win32') {
     return 'agent-driven';
   }

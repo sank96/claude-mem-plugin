@@ -6,13 +6,16 @@ const os = require('node:os');
 const provider = require('../../adapters/copilot/provider.js');
 const { resolveClaudeMemPaths } = require('../../core/paths.js');
 const { selectRuntimePolicy } = require('../../core/runtime-policy.js');
-const {
-  ensureDir,
-  readJson,
-  writeJson,
-} = require('../shared/file-utils.js');
-const { installSharedSkill } = require('../shared/skill-utils.js');
+const sharedFileUtils = require('../shared/file-utils.js');
+const sharedSkillUtils = require('../shared/skill-utils.js');
 const { normalizeRuntimeMode, summarizeInstallMode } = require('../shared/summary.js');
+const {
+  captureSnapshot,
+  removeInstalledVersion,
+  resolveInstallAction,
+  restoreSnapshot,
+  writeInstalledVersion,
+} = require('../../core/installer-state.js');
 
 function normalizeFilePath(filePath) {
   return filePath.replace(/\\/g, '/');
@@ -30,8 +33,17 @@ function resolveCopilotPaths(options = {}) {
     skillRoot,
     configFile: path.join(copilotHome, 'mcp-config.json'),
     adapterRoot: path.join(packageRoot, 'adapters', 'copilot'),
+    pluginRoot: upstreamPaths.pluginRoot,
     mcpServer: upstreamPaths.mcpServer,
   };
+}
+
+function validateCopilotInstallPrereqs(paths) {
+  for (const requiredPath of [paths.pluginRoot, paths.mcpServer]) {
+    if (!requiredPath || !fs.existsSync(requiredPath)) {
+      throw new Error(`required upstream file is missing: ${requiredPath}`);
+    }
+  }
 }
 
 function buildCopilotMcpConfig(mcpServerPath) {
@@ -56,36 +68,69 @@ function mergeCopilotMcpConfig(existingConfig = {}, mcpServerPath) {
 }
 
 async function installCopilotAdapter(options = {}) {
+  const deps = {
+    fileUtils: options.fileUtils ?? sharedFileUtils,
+    skillUtils: options.skillUtils ?? sharedSkillUtils,
+  };
   const paths = resolveCopilotPaths(options);
   const runtimePolicy = selectRuntimePolicy({
     adapter: provider.adapter,
     platform: options.platform,
   });
   const runtimeMode = normalizeRuntimeMode(runtimePolicy);
+  const currentVersion = options.version ?? require('../../package.json').version;
+  const installState = resolveInstallAction(paths.copilotHome, currentVersion);
+  const canonicalSkillDir = path.join(paths.skillRoot, 'claude-mem');
 
-  ensureDir(paths.copilotHome);
+  if (installState.action === 'skip') {
+    return {
+      action: installState.action,
+      skipped: true,
+      copilotHome: paths.copilotHome,
+      configFile: paths.configFile,
+      mcpServer: paths.mcpServer,
+      runtimeMode,
+      skillDir: canonicalSkillDir,
+      skillRoot: paths.skillRoot,
+      summary: `skipped (v${installState.installedVersion} already installed)`,
+    };
+  }
 
-  const configJson = readJson(paths.configFile, {});
-  writeJson(paths.configFile, mergeCopilotMcpConfig(configJson, paths.mcpServer));
+  validateCopilotInstallPrereqs(paths);
+  deps.fileUtils.ensureDir(paths.copilotHome);
 
-  const skillPaths = installSharedSkill({
-    packageRoot: paths.packageRoot,
-    skillRoot: paths.skillRoot,
-    skillName: 'claude-mem',
-  });
+  const snapshot = captureSnapshot([paths.configFile, canonicalSkillDir]);
 
-  return {
-    copilotHome: paths.copilotHome,
-    configFile: paths.configFile,
-    mcpServer: paths.mcpServer,
-    runtimeMode,
-    skillDir: skillPaths.targetDir,
-    skillRoot: paths.skillRoot,
-    summary: summarizeInstallMode({
-      adapter: provider.adapter,
-      platform: options.platform,
-    }),
-  };
+  try {
+    const configJson = deps.fileUtils.readJson(paths.configFile, {});
+    deps.fileUtils.writeJson(paths.configFile, mergeCopilotMcpConfig(configJson, paths.mcpServer));
+
+    const skillPaths = deps.skillUtils.installSharedSkill({
+      packageRoot: paths.packageRoot,
+      skillRoot: paths.skillRoot,
+      skillName: 'claude-mem',
+    });
+
+    writeInstalledVersion(paths.copilotHome, currentVersion);
+
+    return {
+      action: installState.action,
+      skipped: false,
+      copilotHome: paths.copilotHome,
+      configFile: paths.configFile,
+      mcpServer: paths.mcpServer,
+      runtimeMode,
+      skillDir: skillPaths.targetDir,
+      skillRoot: paths.skillRoot,
+      summary: summarizeInstallMode({
+        adapter: provider.adapter,
+        platform: options.platform,
+      }),
+    };
+  } catch (error) {
+    restoreSnapshot(snapshot);
+    throw error;
+  }
 }
 
 async function main() {
@@ -106,4 +151,5 @@ module.exports = {
   mergeCopilotMcpConfig,
   normalizeFilePath,
   resolveCopilotPaths,
+  validateCopilotInstallPrereqs,
 };

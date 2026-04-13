@@ -8,6 +8,7 @@ const {
   writeJson,
 } = require('../shared/file-utils.js');
 const { uninstallSharedSkill } = require('../shared/skill-utils.js');
+const { removeInstalledVersion } = require('../../core/installer-state.js');
 const {
   resolveCopilotPaths,
 } = require('./install.js');
@@ -53,6 +54,7 @@ async function uninstallCopilotAdapter(options = {}) {
     skillRoot: paths.skillRoot,
     skillName: 'claude-mem',
   });
+  removeInstalledVersion(paths.copilotHome);
 
   return { removed: true };
 }
