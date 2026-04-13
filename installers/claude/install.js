@@ -4,14 +4,18 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const provider = require('../../adapters/claude/provider.js');
-const {
-  ensureDir,
-  readJson,
-  writeJson,
-} = require('../shared/file-utils.js');
-const { installSharedSkill } = require('../shared/skill-utils.js');
+const { resolveClaudeMemPaths } = require('../../core/paths.js');
+const sharedFileUtils = require('../shared/file-utils.js');
+const sharedSkillUtils = require('../shared/skill-utils.js');
 const { normalizeRuntimeMode, summarizeInstallMode } = require('../shared/summary.js');
 const { selectRuntimePolicy } = require('../../core/runtime-policy.js');
+const {
+  captureSnapshot,
+  removeInstalledVersion,
+  resolveInstallAction,
+  restoreSnapshot,
+  writeInstalledVersion,
+} = require('../../core/installer-state.js');
 
 const SETTINGS_MARKER = '# claude-mem-plugin Claude hooks';
 
@@ -50,13 +54,25 @@ function resolveClaudePaths(options = {}) {
   const packageRoot = options.packageRoot ?? path.resolve(__dirname, '..', '..');
   const claudeHome = options.claudeHome ?? path.join(os.homedir(), '.claude');
   const skillRoot = options.skillRoot ?? path.join(claudeHome, 'skills');
+  const upstreamPaths = options.upstreamPaths ?? resolveClaudeMemPaths(options);
 
   return {
     packageRoot,
     claudeHome,
     settingsFile: path.join(claudeHome, 'settings.json'),
     skillRoot,
+    pluginRoot: upstreamPaths.pluginRoot,
+    bunRunner: upstreamPaths.bunRunner,
+    workerService: upstreamPaths.workerService,
   };
+}
+
+function validateClaudeInstallPrereqs(paths) {
+  for (const requiredPath of [paths.pluginRoot, paths.bunRunner, paths.workerService]) {
+    if (!requiredPath || !fs.existsSync(requiredPath)) {
+      throw new Error(`required upstream file is missing: ${requiredPath}`);
+    }
+  }
 }
 
 function buildClaudeHooksConfig(packageRoot) {
@@ -142,38 +158,70 @@ function mergeHooks(existingHooks, packageRoot) {
 }
 
 async function installClaudeAdapter(options = {}) {
+  const deps = {
+    fileUtils: options.fileUtils ?? sharedFileUtils,
+    skillUtils: options.skillUtils ?? sharedSkillUtils,
+  };
   const paths = resolveClaudePaths(options);
   const runtimePolicy = selectRuntimePolicy({
     adapter: provider.adapter,
     platform: options.platform,
   });
   const runtimeMode = normalizeRuntimeMode(runtimePolicy);
+  const currentVersion = options.version ?? require('../../package.json').version;
+  const installState = resolveInstallAction(paths.claudeHome, currentVersion);
+  const canonicalSkillDir = path.join(paths.skillRoot, 'claude-mem');
 
-  ensureDir(paths.claudeHome);
-
-  if (runtimePolicy === 'hook-driven') {
-    const settingsJson = readJson(paths.settingsFile, {});
-    settingsJson.hooks = mergeHooks(settingsJson.hooks ?? {}, paths.packageRoot);
-    writeJson(paths.settingsFile, settingsJson);
+  if (installState.action === 'skip') {
+    return {
+      action: installState.action,
+      skipped: true,
+      claudeHome: paths.claudeHome,
+      settingsFile: paths.settingsFile,
+      runtimeMode,
+      skillDir: canonicalSkillDir,
+      skillRoot: paths.skillRoot,
+      summary: `skipped (v${installState.installedVersion} already installed)`,
+    };
   }
 
-  const skillPaths = installSharedSkill({
-    packageRoot: paths.packageRoot,
-    skillRoot: paths.skillRoot,
-    skillName: 'claude-mem',
-  });
+  validateClaudeInstallPrereqs(paths);
+  deps.fileUtils.ensureDir(paths.claudeHome);
 
-  return {
-    claudeHome: paths.claudeHome,
-    settingsFile: paths.settingsFile,
-    runtimeMode,
-    skillDir: skillPaths.targetDir,
-    skillRoot: skillPaths.skillRoot,
-    summary: summarizeInstallMode({
-      adapter: provider.adapter,
-      platform: options.platform,
-    }),
-  };
+  const snapshot = captureSnapshot([paths.settingsFile, canonicalSkillDir]);
+
+  try {
+    if (runtimePolicy === 'hook-driven') {
+      const settingsJson = deps.fileUtils.readJson(paths.settingsFile, {});
+      settingsJson.hooks = mergeHooks(settingsJson.hooks ?? {}, paths.packageRoot);
+      deps.fileUtils.writeJson(paths.settingsFile, settingsJson);
+    }
+
+    const skillPaths = deps.skillUtils.installSharedSkill({
+      packageRoot: paths.packageRoot,
+      skillRoot: paths.skillRoot,
+      skillName: 'claude-mem',
+    });
+
+    writeInstalledVersion(paths.claudeHome, currentVersion);
+
+    return {
+      action: installState.action,
+      skipped: false,
+      claudeHome: paths.claudeHome,
+      settingsFile: paths.settingsFile,
+      runtimeMode,
+      skillDir: skillPaths.targetDir,
+      skillRoot: skillPaths.skillRoot,
+      summary: summarizeInstallMode({
+        adapter: provider.adapter,
+        platform: options.platform,
+      }),
+    };
+  } catch (error) {
+    restoreSnapshot(snapshot);
+    throw error;
+  }
 }
 
 async function main() {
@@ -196,4 +244,5 @@ module.exports = {
   mergeHooks,
   normalizeFilePath,
   resolveClaudePaths,
+  validateClaudeInstallPrereqs,
 };

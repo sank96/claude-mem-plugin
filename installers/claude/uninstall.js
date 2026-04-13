@@ -8,6 +8,7 @@ const {
   writeJson,
 } = require('../shared/file-utils.js');
 const { uninstallSharedSkill } = require('../shared/skill-utils.js');
+const { removeInstalledVersion } = require('../../core/installer-state.js');
 const { resolveClaudePaths } = require('./install.js');
 
 function cleanupHooks(currentHooks = {}) {
@@ -43,6 +44,7 @@ async function uninstallClaudeAdapter(options = {}) {
     skillRoot: options.skillRoot ?? paths.skillRoot,
     skillName: 'claude-mem',
   });
+  removeInstalledVersion(paths.claudeHome);
 
   return { removed: true };
 }
