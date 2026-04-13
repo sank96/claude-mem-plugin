@@ -63,6 +63,12 @@ claude-mem-plugin install all
 
 Restart `Codex`, `Claude Code`, or `Copilot CLI` after installation so the new config and shared skill are reloaded. If you are evaluating the package for the first time, the quickest smoke test is `npx claude-mem-plugin install all` in a fresh shell.
 
+To inspect upstream availability and per-client install state without changing any files:
+
+```bash
+npx claude-mem-plugin doctor
+```
+
 Source checkouts and release `.zip` installs are documented separately in [docs/from-source.md](docs/from-source.md).
 
 ## Why Use It
@@ -92,6 +98,7 @@ If you need the memory engine itself, its architecture, or its product documenta
 | Claude Code | `npx claude-mem-plugin install claude` | `npx claude-mem-plugin uninstall claude` |
 | Copilot CLI | `npx claude-mem-plugin install copilot` | `npx claude-mem-plugin uninstall copilot` |
 | All supported clients | `npx claude-mem-plugin install all` | `npx claude-mem-plugin uninstall all` |
+| Diagnostics | `npx claude-mem-plugin doctor` | n/a |
 
 The same subcommands work after `npm install -g claude-mem-plugin`.
 
@@ -101,7 +108,7 @@ The same subcommands work after `npm install -g claude-mem-plugin`.
 | --- | --- | --- | --- |
 | Codex | Available | `npx claude-mem-plugin install codex` | Installs the shared skill and removes any legacy `codex-mem` alias during reinstall |
 | Claude Code | Available | `npx claude-mem-plugin install claude` | Updates `.claude/settings.json` and installs the shared skill |
-| Copilot CLI | Available | `npx claude-mem-plugin install copilot` | Updates `.copilot/mcp-config.json` and installs the shared skill |
+| Copilot CLI | Available | `npx claude-mem-plugin install copilot` | MCP + shared skill only; no hook registration - agent-driven on all platforms |
 
 ## Runtime Modes
 
@@ -112,8 +119,11 @@ The package currently uses two operating modes:
 
 Current policy:
 
-- macOS and other non-Windows platforms default to `hook-driven`
+- Codex and Claude Code default to `hook-driven` on macOS and other non-Windows platforms
 - Windows defaults to `agent-driven fallback`
+- Copilot CLI uses `agent-driven fallback` on all platforms
+
+Version markers created in `~/.codex`, `~/.claude`, and `~/.copilot` are used only for idempotent install and upgrade behavior. They do not replace the upstream memory engine or prove that the runtime is healthy on their own.
 
 ## Verification
 
@@ -123,6 +133,12 @@ Check the target files below after installation:
 - Claude Code: `~/.claude/settings.json`, `~/.claude/skills/claude-mem/`
 - Copilot CLI: `~/.copilot/mcp-config.json`, `~/.copilot/skills/claude-mem/`
 
+For a read-only diagnostic pass:
+
+```bash
+npx claude-mem-plugin doctor
+```
+
 If you are migrating an older Codex-only setup, the installer removes any leftover `codex-mem` compatibility alias and keeps only the canonical `claude-mem` skill.
 
 ## Documentation
@@ -130,6 +146,7 @@ If you are migrating an older Codex-only setup, the installer removes any leftov
 - [Installation](docs/installation.md)
 - [Architecture](docs/architecture.md)
 - [Lifecycle](docs/lifecycle.md)
+- [Upstream compatibility](docs/upstream-compatibility.md)
 - [README positioning design](docs/superpowers/specs/2026-04-13-readme-positioning-design.md)
 - [Wordmark design](docs/superpowers/specs/2026-04-13-wordmark-design.md)
 - [Install from source](docs/from-source.md)

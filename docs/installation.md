@@ -14,6 +14,12 @@ Current state:
 - access to the target CLI's configuration and skill directories
 - the upstream `claude-mem` worker environment already available
 
+Before writing any files, you can run a read-only diagnostic pass:
+
+`npx claude-mem-plugin doctor`
+
+`doctor` verifies the upstream `claude-mem` checkout is discoverable and then checks whether each adapter's physical config and skill artifacts exist. Version markers are reported as metadata only.
+
 ## Codex
 
 Fastest path:
@@ -66,7 +72,8 @@ The installer:
 1. creates or updates `.copilot/mcp-config.json`
 2. copies the shared `claude-mem` skill into `.copilot/skills`
 3. registers the `claude-mem` MCP server for Copilot CLI
-4. prints the selected mode summary
+4. always runs in `agent-driven fallback`
+5. prints the selected mode summary
 
 Remove the Copilot integration with:
 
@@ -93,10 +100,27 @@ npm install -g claude-mem-plugin
 claude-mem-plugin install codex
 ```
 
+## Upgrading
+
+Re-run the same install command when you want to refresh an existing adapter:
+
+```bash
+npx claude-mem-plugin install codex
+npx claude-mem-plugin install claude
+npx claude-mem-plugin install copilot
+```
+
+Each installer writes a local version marker in the target home directory and uses it only for idempotent install or upgrade behavior. The marker does not replace real artifact checks, which is why `doctor` still inspects config and skill files directly.
+
 ## Runtime policy
 
-- macOS and other non-Windows platforms resolve to `hook-driven`
-- Windows resolves to `agent-driven fallback`
+- Codex and Claude Code resolve to `hook-driven` on macOS and other non-Windows platforms
+- Windows resolves Codex and Claude Code to `agent-driven fallback`
+- Copilot CLI uses `agent-driven fallback` on all platforms because this package does not register hooks for Copilot
+
+## Partial failures
+
+`install all` treats a skipped adapter as a successful no-op, but any real adapter failure is still reported in the final summary. Installers that fail after mutating files attempt to restore the pre-install snapshot before returning the error.
 
 ## Failure handling
 
@@ -105,6 +129,7 @@ claude-mem-plugin install codex
 - If the wrong mode is reported, verify the platform passed through the shared runtime policy.
 - If hooks are missing on Windows, that is expected because fallback mode does not write them.
 - If Copilot does not see the MCP server, inspect `.copilot/mcp-config.json`.
+- If `doctor` reports `NOT INSTALLED`, fix the missing physical artifacts first; a version marker alone is not enough.
 
 ## Working from a local checkout or release zip
 

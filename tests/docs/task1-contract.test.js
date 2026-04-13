@@ -51,11 +51,24 @@ test('installation docs advertise public install surfaces for all CLIs', () => {
   assert.match(installation, /npx claude-mem-plugin install codex/i);
   assert.match(installation, /npx claude-mem-plugin install claude/i);
   assert.match(installation, /npx claude-mem-plugin install copilot/i);
+  assert.match(installation, /npx claude-mem-plugin doctor/i);
   assert.match(installation, /npm install -g claude-mem-plugin/i);
   assert.match(installation, /Codex/i);
   assert.match(installation, /Claude/i);
   assert.match(installation, /Copilot/i);
+  assert.match(installation, /Upgrading/i);
+  assert.match(installation, /Partial failures/i);
   assert.match(installation, /from-source\.md/i);
+});
+
+test('README and support docs are explicit about doctor and Copilot runtime truth', () => {
+  const readme = read('README.md');
+  const supportMatrix = read('docs/support-matrix.md');
+
+  assert.match(readme, /claude-mem-plugin doctor/i);
+  assert.match(readme, /Copilot CLI uses `agent-driven fallback` on all platforms/i);
+  assert.match(supportMatrix, /agent-driven fallback/i);
+  assert.doesNotMatch(supportMatrix, /hook-driven policy/i);
 });
 
 test('execution status schema exposes dashboard fields', () => {
