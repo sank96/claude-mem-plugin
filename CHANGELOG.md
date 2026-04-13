@@ -7,6 +7,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-04-13
+
+### Fixed
+
+- npm package contents now exclude internal `docs/superpowers` artifacts from the published tarball
+- Added a packlist test so release verification catches internal planning docs before publish
+
 ## [0.1.4] - 2026-04-13
 
 ### Added
