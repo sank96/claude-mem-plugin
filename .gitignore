@@ -19,6 +19,4 @@ docs/HANDOFF-*.md
 .worktrees/
 .claude/
 .swarm/
-docs/superpowers/*
-!docs/superpowers/specs/
-!docs/superpowers/specs/**
+docs/superpowers/

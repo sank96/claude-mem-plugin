@@ -37,8 +37,6 @@ test('README presents the public distribution and install surface clearly', () =
   assert.match(readme, /npm install -g claude-mem-plugin/i);
   assert.match(readme, /package and CLI name: `claude-mem-plugin`/i);
   assert.match(readme, /docs\/from-source\.md/i);
-  assert.match(readme, /docs\/superpowers\/specs\/2026-04-13-readme-positioning-design\.md/i);
-  assert.match(readme, /docs\/superpowers\/specs\/2026-04-13-wordmark-design\.md/i);
   assert.doesNotMatch(readme, /download the latest `\.zip`/i);
   assert.doesNotMatch(readme, /clone the repository/i);
 });

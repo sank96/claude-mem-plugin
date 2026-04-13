@@ -38,8 +38,6 @@ test('README covers operator essentials and current installer availability', () 
   assert.match(readme, /docs\/releasing\.md/i);
   assert.match(readme, /docs\/npm-and-npx\.md/i);
   assert.match(readme, /docs\/from-source\.md/i);
-  assert.match(readme, /docs\/superpowers\/specs\/2026-04-13-readme-positioning-design\.md/i);
-  assert.match(readme, /docs\/superpowers\/specs\/2026-04-13-wordmark-design\.md/i);
   assert.match(readme, /npm install -g claude-mem-plugin/i);
   assert.doesNotMatch(readme, /download the latest `\.zip`/i);
 });

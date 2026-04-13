@@ -147,8 +147,6 @@ If you are migrating an older Codex-only setup, the installer removes any leftov
 - [Architecture](docs/architecture.md)
 - [Lifecycle](docs/lifecycle.md)
 - [Upstream compatibility](docs/upstream-compatibility.md)
-- [README positioning design](docs/superpowers/specs/2026-04-13-readme-positioning-design.md)
-- [Wordmark design](docs/superpowers/specs/2026-04-13-wordmark-design.md)
 - [Install from source](docs/from-source.md)
 - [Support matrix](docs/support-matrix.md)
 - [Troubleshooting](docs/troubleshooting.md)
@@ -172,8 +170,6 @@ Contributions are welcome. Start with:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 - [Install from source](docs/from-source.md)
-- [README positioning design](docs/superpowers/specs/2026-04-13-readme-positioning-design.md)
-- [Wordmark design](docs/superpowers/specs/2026-04-13-wordmark-design.md)
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 - [SECURITY.md](SECURITY.md)
 

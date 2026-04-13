@@ -20,7 +20,6 @@ test('package metadata and docs entrypoints exist', () => {
   assert.equal(fs.existsSync(path.join(root, 'docs', 'npm-and-npx.md')), true);
   assert.equal(fs.existsSync(path.join(root, 'docs', 'from-source.md')), true);
   assert.equal(fs.existsSync(path.join(root, 'docs', 'assets', 'claude-mem-plugin-wordmark.svg')), true);
-  assert.equal(fs.existsSync(path.join(root, 'docs', 'superpowers', 'specs', '2026-04-13-wordmark-design.md')), true);
   assert.equal(fs.existsSync(path.join(root, '.github', 'workflows', 'ci.yml')), true);
   assert.equal(fs.existsSync(path.join(root, '.github', 'ISSUE_TEMPLATE', 'bug_report.yml')), true);
   assert.equal(fs.existsSync(path.join(root, '.github', 'ISSUE_TEMPLATE', 'feature_request.yml')), true);
