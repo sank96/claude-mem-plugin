@@ -1,7 +1,7 @@
 {
   "name": "claude-mem-plugin",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "description": "Cross-CLI integration layer for claude-mem.",
   "homepage": "https://github.com/sank96/claude-mem-plugin#readme",
   "repository": {
@@ -21,6 +21,28 @@
     "memory",
     "ai-agent"
   ],
+  "bin": {
+    "claude-mem-plugin": "./bin/claude-mem-plugin.js"
+  },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "SECURITY.md",
+    "bin/",
+    "cli/",
+    "adapters/",
+    "commands/",
+    "core/",
+    "docs/",
+    "installers/",
+    "skills/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=18"
   },

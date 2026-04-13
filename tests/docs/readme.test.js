@@ -16,6 +16,8 @@ test('README presents the public distribution and install surface clearly', () =
   assert.match(readme, /github\/actions\/workflow\/status\/sank96\/claude-mem-plugin\/ci\.yml/i);
   assert.match(readme, /github\.com\/sank96\/claude-mem-plugin\/releases/i);
   assert.match(readme, /GitHub Releases/i);
+  assert.match(readme, /npx-ready/i);
+  assert.match(readme, /npx claude-mem-plugin install codex/i);
   assert.match(readme, /npm run install:all/i);
   assert.match(readme, /npm run uninstall:all/i);
   assert.match(readme, /npm run install:codex/i);
@@ -37,13 +39,15 @@ test('release operations docs exist and describe GitHub and npm release paths', 
 
   assert.match(releasing, /GitHub Release Playbook/i);
   assert.match(releasing, /npm run install:all/i);
+  assert.match(releasing, /npm exec --yes --package/i);
+  assert.match(releasing, /npm pack/i);
   assert.match(releasing, /git archive/i);
   assert.match(releasing, /Get-FileHash/i);
   assert.match(releasing, /Releases/i);
 
   assert.match(futureNpm, /Future npm and npx Release Plan/i);
   assert.match(futureNpm, /npx claude-mem-plugin install codex/i);
-  assert.match(futureNpm, /private/i);
+  assert.match(futureNpm, /npm-ready/i);
   assert.match(futureNpm, /\bbin\b/i);
 });
 

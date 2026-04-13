@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/github/license/sank96/claude-mem-plugin)](https://github.com/sank96/claude-mem-plugin/blob/main/LICENSE)
 [![Issues](https://img.shields.io/github/issues/sank96/claude-mem-plugin)](https://github.com/sank96/claude-mem-plugin/issues)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![npx-ready](https://img.shields.io/badge/npx-ready-CB3837?logo=npm&logoColor=white)](https://github.com/sank96/claude-mem-plugin/blob/main/docs/future-npm-release.md)
 
 `claude-mem-plugin` brings [claude-mem](https://github.com/thedotmack/claude-mem) to `Codex`, `Claude Code`, and `Copilot CLI`.
 
@@ -41,6 +42,7 @@ This package gives you:
 - Shared memory skill for all supported CLIs
 - Dedicated installers for `Codex`, `Claude Code`, and `Copilot CLI`
 - One-shot setup with `npm run install:all`
+- Public CLI surface ready for `npx claude-mem-plugin ...`
 - Conservative runtime policy with Windows fallback mode
 - No `npm install` step required before running the installer scripts
 
@@ -116,6 +118,19 @@ npm run install:all
 
 Restart the target CLI after installation.
 
+### npm and npx
+
+Once the package is published to npm, the public install surface will be:
+
+```bash
+npx claude-mem-plugin install codex
+npx claude-mem-plugin install claude
+npx claude-mem-plugin install copilot
+npx claude-mem-plugin install all
+```
+
+Until the first npm publish, you can self-test the packaged CLI locally from a tarball. See [docs/releasing.md](docs/releasing.md).
+
 ## Installers
 
 | Client | Install | Uninstall |
@@ -169,7 +184,7 @@ Current distribution channel:
 Planned future channel:
 
 - public `npm` package
-- `npx` install surface after a dedicated CLI entrypoint is added
+- `npx` install surface
 
 That future work is tracked in [docs/future-npm-release.md](docs/future-npm-release.md).
 

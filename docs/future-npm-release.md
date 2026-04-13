@@ -5,8 +5,9 @@ This document tracks the future packaging work required to publish `claude-mem-p
 Current state:
 
 - distribution is `GitHub repository + GitHub Releases`
-- `package.json` is still marked `private`
-- there is no public CLI entrypoint yet
+- the package is npm-ready but not yet published
+- the public CLI entrypoint exists
+- this machine is not authenticated to npm publish yet
 
 ## Target user experience
 
@@ -29,28 +30,25 @@ claude-mem-plugin install codex
 
 Publishing to npm before the package has a stable CLI contract would create a support burden immediately.
 
-The missing pieces are:
+The remaining pieces are:
 
-- a real `bin` entrypoint
-- a stable command grammar
-- an npm-ready package manifest
+- first real npm publish
 - publish and smoke-test automation
 - public support expectations for Windows, macOS, and Linux
 
 ## Required package changes
 
-Before an npm release, the package should be updated to include:
+The package now includes:
 
-1. remove `"private": true` from `package.json`
-2. add `repository`, `homepage`, and `bugs` metadata
-3. add a `bin` field that points to a CLI entrypoint, for example:
-   - `bin/claude-mem-plugin.js`
-4. add a `files` whitelist so the published tarball only includes supported assets
-5. keep `engines.node` explicit
+1. public package metadata
+2. a `bin` entrypoint
+3. a `files` whitelist
+4. explicit Node engine requirements
+5. an initial command grammar for install and uninstall flows
 
 ## Required CLI surface
 
-The package needs a small public CLI wrapper that dispatches to the existing installers.
+The package now includes a public CLI wrapper that dispatches to the existing installers.
 
 Recommended commands:
 
@@ -62,7 +60,7 @@ Recommended commands:
 - `claude-mem-plugin uninstall copilot`
 - `claude-mem-plugin doctor`
 
-`doctor` should be added before general npm distribution so users can validate:
+`doctor` is still recommended before general npm distribution so users can validate:
 
 - Node version
 - upstream `claude-mem` presence
@@ -107,7 +105,6 @@ Open general npm distribution once:
 
 Do not publish to npm until all of the following are true:
 
-- the package is no longer `private`
 - the CLI entrypoint is implemented
 - `node --test` covers the public CLI wrapper
 - a clean machine can install from `npx` without local repo context

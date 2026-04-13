@@ -29,7 +29,7 @@ test('package metadata is minimally valid', () => {
   const root = path.resolve(__dirname, '..', '..');
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   assert.equal(pkg.name, 'claude-mem-plugin');
-  assert.equal(pkg.private, true);
+  assert.equal(pkg.private, false);
   assert.equal(pkg.homepage, 'https://github.com/sank96/claude-mem-plugin#readme');
   assert.equal(pkg.repository.type, 'git');
   assert.equal(pkg.repository.url, 'git+https://github.com/sank96/claude-mem-plugin.git');
@@ -37,6 +37,11 @@ test('package metadata is minimally valid', () => {
   assert.equal(pkg.engines.node, '>=18');
   assert.ok(Array.isArray(pkg.keywords));
   assert.ok(pkg.keywords.includes('claude-mem'));
+  assert.equal(pkg.bin['claude-mem-plugin'], './bin/claude-mem-plugin.js');
+  assert.ok(Array.isArray(pkg.files));
+  assert.ok(pkg.files.includes('bin/'));
+  assert.ok(pkg.files.includes('cli/'));
+  assert.equal(pkg.publishConfig.access, 'public');
   assert.equal(pkg.scripts.test, 'node --test');
   assert.equal(pkg.scripts['install:codex'], 'node installers/codex/install.js');
   assert.equal(pkg.scripts['install:all'], 'node installers/install-all.js');

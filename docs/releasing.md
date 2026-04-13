@@ -76,6 +76,30 @@ New-Item -ItemType Directory -Force .\dist | Out-Null
 git archive --format=zip --prefix="claude-mem-plugin-v$version/" --output=".\dist\claude-mem-plugin-v$version.zip" HEAD
 ```
 
+### 4b. Build the npm tarball for self-test
+
+If you want to validate the future `npx` surface before publishing, build the npm tarball locally:
+
+```powershell
+npm pack
+```
+
+This produces a file like:
+
+`claude-mem-plugin-0.1.0.tgz`
+
+You can test the packaged CLI locally with:
+
+```powershell
+npm exec --yes --package ".\claude-mem-plugin-0.1.0.tgz" -- claude-mem-plugin --help
+```
+
+And then test an actual command, for example:
+
+```powershell
+npm exec --yes --package ".\claude-mem-plugin-0.1.0.tgz" -- claude-mem-plugin install all
+```
+
 ### 5. Generate a checksum
 
 ```powershell
