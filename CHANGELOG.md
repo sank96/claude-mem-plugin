@@ -25,3 +25,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   - security policy
   - issue templates
   - CI workflow
+
+### Fixed
+
+- Codex installer now restores the parent `mcp_servers.claude-mem` block before orphaned `tools.*` tables, preventing duplicate-key failures on reinstall
+- Shared skill installer now preserves existing managed links for Claude Code and Copilot skill exposures instead of replacing them with standalone copies

@@ -11,7 +11,7 @@ const {
 const { uninstallSharedSkill } = require('../shared/skill-utils.js');
 const {
   resolveCodexPaths,
-  stripExistingMcpBlock,
+  removeCodexMcpBlock,
 } = require('./install.js');
 
 function cleanupHooks(currentHooks = {}) {
@@ -44,7 +44,7 @@ async function uninstallCodexAdapter(options = {}) {
 
   if (fs.existsSync(paths.configFile)) {
     const configToml = fs.readFileSync(paths.configFile, 'utf8');
-    writeText(paths.configFile, stripExistingMcpBlock(configToml).trim());
+    writeText(paths.configFile, removeCodexMcpBlock(configToml).trim());
   }
 
   uninstallSharedSkill({

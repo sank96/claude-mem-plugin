@@ -136,11 +136,94 @@ function buildCodexMcpBlock(mcpServerPath) {
   ].join('\n');
 }
 
-function stripExistingMcpBlock(content) {
-  return content.replace(
-    /\n?# claude-mem-plugin MCP server\n\[mcp_servers\.claude-mem\]\ncommand = "node"\nargs = \[".*?"\]\n?/gs,
-    '\n'
-  );
+function isClaudeMemNestedTable(line) {
+  return typeof line === 'string' && /^\[mcp_servers\.claude-mem\./.test(line);
+}
+
+function upsertCodexMcpBlock(content, mcpServerPath) {
+  const lines = content.split(/\r?\n/);
+  const nextLines = [];
+  let sawPrimaryBlock = false;
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const isMarker =
+      line === '# claude-mem-plugin MCP server' ||
+      line === '# codex-mem MCP server';
+    const tableLine = isMarker ? lines[index + 1] : line;
+
+    if (tableLine === '[mcp_servers.claude-mem]') {
+      if (isMarker) {
+        index += 1;
+      }
+
+      while (index + 1 < lines.length && !lines[index + 1].startsWith('[')) {
+        index += 1;
+      }
+
+      if (!sawPrimaryBlock) {
+        nextLines.push(...buildCodexMcpBlock(mcpServerPath).trim().split('\n'));
+        sawPrimaryBlock = true;
+      }
+
+      continue;
+    }
+
+    if (isMarker && isClaudeMemNestedTable(tableLine)) {
+      if (!sawPrimaryBlock) {
+        nextLines.push(...buildCodexMcpBlock(mcpServerPath).trim().split('\n'));
+        sawPrimaryBlock = true;
+      }
+
+      continue;
+    }
+
+    if (!sawPrimaryBlock && isClaudeMemNestedTable(line)) {
+      nextLines.push(...buildCodexMcpBlock(mcpServerPath).trim().split('\n'));
+      sawPrimaryBlock = true;
+    }
+
+    nextLines.push(line);
+  }
+
+  if (!sawPrimaryBlock) {
+    const trimmed = nextLines.join('\n').trimEnd();
+    return `${trimmed}${buildCodexMcpBlock(mcpServerPath)}`;
+  }
+
+  return `${nextLines.join('\n').trimEnd()}\n`;
+}
+
+function removeCodexMcpBlock(content) {
+  const lines = content.split(/\r?\n/);
+  const nextLines = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const isMarker =
+      line === '# claude-mem-plugin MCP server' ||
+      line === '# codex-mem MCP server';
+    const sectionLine = isMarker ? lines[index + 1] : line;
+
+    if (
+      typeof sectionLine === 'string' &&
+      /^\[mcp_servers\.claude-mem(?:[.\]].*)?$/.test(sectionLine)
+    ) {
+      if (isMarker) {
+        index += 1;
+      }
+
+      while (index + 1 < lines.length && !lines[index + 1].startsWith('[')) {
+        index += 1;
+      }
+
+      continue;
+    }
+
+    nextLines.push(line);
+  }
+
+  return `${nextLines.join('\n').trim()}\n`;
 }
 
 function mergeHooks(existingHooks, adapterRoot) {
@@ -178,7 +261,7 @@ async function installCodexAdapter(options = {}) {
   const configToml = fs.existsSync(paths.configFile)
     ? fs.readFileSync(paths.configFile, 'utf8')
     : '';
-  const nextConfig = `${stripExistingMcpBlock(configToml).trimEnd()}${buildCodexMcpBlock(paths.mcpServer)}`;
+  const nextConfig = upsertCodexMcpBlock(configToml, paths.mcpServer);
   writeText(paths.configFile, nextConfig);
 
   const skillPaths = installSharedSkill({
@@ -226,8 +309,10 @@ module.exports = {
   buildCodexMcpBlock,
   installCodexAdapter,
   LEGACY_CODEX_SKILL_NAME,
+  isClaudeMemNestedTable,
   normalizeFilePath,
+  removeCodexMcpBlock,
   resolveCodexPaths,
-  stripExistingMcpBlock,
+  upsertCodexMcpBlock,
   validateCodexInstallPrereqs,
 };

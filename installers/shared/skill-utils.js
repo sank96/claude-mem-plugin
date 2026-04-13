@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 const {
@@ -24,12 +25,35 @@ function resolveSkillPaths(options = {}) {
   };
 }
 
+function hasExistingLinkedSkill(targetDir) {
+  if (!fs.existsSync(targetDir)) {
+    return false;
+  }
+
+  try {
+    const stats = fs.lstatSync(targetDir);
+    return stats.isSymbolicLink();
+  } catch {
+    return false;
+  }
+}
+
 function installSharedSkill(options = {}) {
   const paths = resolveSkillPaths(options);
   ensureDir(paths.skillRoot);
+  if (hasExistingLinkedSkill(paths.targetDir)) {
+    return {
+      ...paths,
+      preservedExistingLink: true,
+    };
+  }
+
   removeDirectory(paths.targetDir);
   copyDirectory(paths.sourceDir, paths.targetDir);
-  return paths;
+  return {
+    ...paths,
+    preservedExistingLink: false,
+  };
 }
 
 function uninstallSharedSkill(options = {}) {
@@ -39,6 +63,7 @@ function uninstallSharedSkill(options = {}) {
 }
 
 module.exports = {
+  hasExistingLinkedSkill,
   installSharedSkill,
   resolveSkillPaths,
   uninstallSharedSkill,

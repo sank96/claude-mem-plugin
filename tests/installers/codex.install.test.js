@@ -104,6 +104,91 @@ test('codex installer skips hooks on windows fallback mode', async () => {
   assert.match(configToml, /\[mcp_servers\.claude-mem\]/i);
 });
 
+test('codex installer deduplicates legacy and current mcp blocks while preserving tool settings', async () => {
+  const tempDir = makeTempDir();
+  const codexHome = path.join(tempDir, '.codex');
+  const skillRoot = path.join(tempDir, '.agents', 'skills');
+  const packageRoot = path.join(__dirname, '..', '..');
+  const upstreamPaths = writeFakeUpstream(tempDir);
+
+  fs.mkdirSync(codexHome, { recursive: true });
+  fs.writeFileSync(
+    path.join(codexHome, 'config.toml'),
+    [
+      '# codex-mem MCP server',
+      '[mcp_servers.claude-mem]',
+      'command = "node"',
+      'args = ["C:/legacy/mcp-server.cjs"]',
+      '',
+      '[mcp_servers.claude-mem.tools.search]',
+      'approval_mode = "approve"',
+      '',
+      '# claude-mem-plugin MCP server',
+      '[mcp_servers.claude-mem]',
+      'command = "node"',
+      'args = ["C:/duplicate/mcp-server.cjs"]',
+      '',
+    ].join('\n'),
+    'utf8'
+  );
+
+  const { installCodexAdapter } = require('../../installers/codex/install.js');
+  await installCodexAdapter({
+    platform: 'win32',
+    packageRoot,
+    codexHome,
+    skillRoot,
+    upstreamPaths,
+  });
+
+  const configToml = fs.readFileSync(path.join(codexHome, 'config.toml'), 'utf8');
+  assert.equal((configToml.match(/\[mcp_servers\.claude-mem\]/g) ?? []).length, 1);
+  assert.match(configToml, /\[mcp_servers\.claude-mem\.tools\.search\]/i);
+  assert.match(configToml, /mcp-server\.cjs/i);
+  assert.doesNotMatch(configToml, /C:\/duplicate\/mcp-server\.cjs/i);
+});
+
+test('codex installer restores the parent mcp block before orphaned tool tables', async () => {
+  const tempDir = makeTempDir();
+  const codexHome = path.join(tempDir, '.codex');
+  const skillRoot = path.join(tempDir, '.agents', 'skills');
+  const packageRoot = path.join(__dirname, '..', '..');
+  const upstreamPaths = writeFakeUpstream(tempDir);
+
+  fs.mkdirSync(codexHome, { recursive: true });
+  fs.writeFileSync(
+    path.join(codexHome, 'config.toml'),
+    [
+      'approval_policy = "on-request"',
+      '',
+      '[mcp_servers.claude-mem.tools.search]',
+      'approval_mode = "approve"',
+      '',
+      '[mcp_servers.claude-mem.tools.timeline]',
+      'approval_mode = "approve"',
+      '',
+    ].join('\n'),
+    'utf8'
+  );
+
+  const { installCodexAdapter } = require('../../installers/codex/install.js');
+  await installCodexAdapter({
+    platform: 'win32',
+    packageRoot,
+    codexHome,
+    skillRoot,
+    upstreamPaths,
+  });
+
+  const configToml = fs.readFileSync(path.join(codexHome, 'config.toml'), 'utf8');
+  assert.equal((configToml.match(/\[mcp_servers\.claude-mem\]/g) ?? []).length, 1);
+  assert.match(configToml, /\[mcp_servers\.claude-mem\.tools\.search\]/i);
+  assert.ok(
+    configToml.indexOf('[mcp_servers.claude-mem]') <
+      configToml.indexOf('[mcp_servers.claude-mem.tools.search]')
+  );
+});
+
 test('codex uninstall removes hook config, mcp block, and shared skill', async () => {
   const tempDir = makeTempDir();
   const codexHome = path.join(tempDir, '.codex');
@@ -137,6 +222,49 @@ test('codex uninstall removes hook config, mcp block, and shared skill', async (
 
   assert.equal(fs.existsSync(path.join(skillRoot, 'claude-mem')), false);
   assert.equal(fs.existsSync(path.join(skillRoot, 'codex-mem')), false);
+});
+
+test('codex uninstall removes legacy mcp block and nested tool tables', async () => {
+  const tempDir = makeTempDir();
+  const codexHome = path.join(tempDir, '.codex');
+  const skillRoot = path.join(tempDir, '.agents', 'skills');
+  const packageRoot = path.join(__dirname, '..', '..');
+
+  fs.mkdirSync(codexHome, { recursive: true });
+  fs.writeFileSync(
+    path.join(codexHome, 'config.toml'),
+    [
+      'approval_policy = "on-request"',
+      '',
+      '# codex-mem MCP server',
+      '[mcp_servers.claude-mem]',
+      'command = "node"',
+      'args = ["C:/legacy/mcp-server.cjs"]',
+      '',
+      '[mcp_servers.claude-mem.tools.search]',
+      'approval_mode = "approve"',
+      '',
+      '[mcp_servers.claude-mem.tools.timeline]',
+      'approval_mode = "approve"',
+      '',
+      '[mcp_servers.other]',
+      'command = "node"',
+    ].join('\n'),
+    'utf8'
+  );
+
+  const { uninstallCodexAdapter } = require('../../installers/codex/uninstall.js');
+  await uninstallCodexAdapter({
+    packageRoot,
+    codexHome,
+    skillRoot,
+  });
+
+  const configToml = fs.readFileSync(path.join(codexHome, 'config.toml'), 'utf8');
+  assert.doesNotMatch(configToml, /\[mcp_servers\.claude-mem\]/i);
+  assert.doesNotMatch(configToml, /\[mcp_servers\.claude-mem\.tools\.search\]/i);
+  assert.doesNotMatch(configToml, /\[mcp_servers\.claude-mem\.tools\.timeline\]/i);
+  assert.match(configToml, /\[mcp_servers\.other\]/i);
 });
 
 test('codex installer fails fast when upstream worker lacks codex provider support', async () => {
