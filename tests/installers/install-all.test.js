@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { writeInstalledVersion } = require('../../core/installer-state.js');
 
 function makeTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'claude-mem-plugin-install-all-'));
@@ -165,4 +166,42 @@ test('uninstall-all removes all three adapters and reports aggregate success', a
   assert.equal(fs.existsSync(path.join(tempDir, '.agents', 'skills', 'codex-mem')), false);
   assert.equal(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'claude-mem')), false);
   assert.equal(fs.existsSync(path.join(tempDir, '.copilot', 'skills', 'claude-mem')), false);
+});
+
+test('install-all treats skipped adapters as success in the summary and overall result', async () => {
+  const tempDir = makeTempDir();
+  const packageRoot = path.join(__dirname, '..', '..');
+  const upstreamPaths = writeFakeUpstream(tempDir);
+  const codexHome = path.join(tempDir, '.codex');
+  const { installAllAdapters } = require('../../installers/install-all.js');
+
+  fs.mkdirSync(codexHome, { recursive: true });
+  writeInstalledVersion(codexHome, '0.1.4');
+
+  const result = await installAllAdapters({
+    codex: {
+      platform: 'darwin',
+      packageRoot,
+      codexHome,
+      skillRoot: path.join(tempDir, '.agents', 'skills'),
+      upstreamPaths,
+      version: '0.1.4',
+    },
+    claude: {
+      platform: 'darwin',
+      packageRoot,
+      claudeHome: path.join(tempDir, '.claude'),
+      skillRoot: path.join(tempDir, '.claude', 'skills'),
+    },
+    copilot: {
+      platform: 'darwin',
+      packageRoot,
+      copilotHome: path.join(tempDir, '.copilot'),
+      skillRoot: path.join(tempDir, '.copilot', 'skills'),
+      upstreamPaths,
+    },
+  });
+
+  assert.equal(result.ok, true);
+  assert.match(result.summary, /\[codex\] OK: skipped/i);
 });

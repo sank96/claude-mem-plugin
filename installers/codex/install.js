@@ -6,14 +6,15 @@ const os = require('node:os');
 const provider = require('../../adapters/codex/provider.js');
 const { resolveClaudeMemPaths } = require('../../core/paths.js');
 const { selectRuntimePolicy } = require('../../core/runtime-policy.js');
-const {
-  ensureDir,
-  readJson,
-  writeJson,
-  writeText,
-} = require('../shared/file-utils.js');
-const { installSharedSkill, uninstallSharedSkill } = require('../shared/skill-utils.js');
+const fileUtils = require('../shared/file-utils.js');
+const skillUtils = require('../shared/skill-utils.js');
 const { normalizeRuntimeMode, summarizeInstallMode } = require('../shared/summary.js');
+const {
+  captureSnapshot,
+  resolveInstallAction,
+  restoreSnapshot,
+  writeInstalledVersion,
+} = require('../../core/installer-state.js');
 
 const MCP_BLOCK_MARKER = '# claude-mem-plugin MCP server';
 const LEGACY_CODEX_SKILL_NAME = 'codex-mem';
@@ -242,53 +243,92 @@ function mergeHooks(existingHooks, adapterRoot) {
 }
 
 async function installCodexAdapter(options = {}) {
+  const deps = {
+    fileUtils: options.fileUtils ?? fileUtils,
+    skillUtils: options.skillUtils ?? skillUtils,
+  };
   const paths = resolveCodexPaths(options);
   const runtimePolicy = selectRuntimePolicy({
     adapter: provider.adapter,
     platform: options.platform,
   });
   const runtimeMode = normalizeRuntimeMode(runtimePolicy);
+  const currentVersion = options.version ?? require('../../package.json').version;
+  const installState = resolveInstallAction(paths.codexHome, currentVersion);
+  const resolvedSkillRoot = options.skillRoot ?? path.join(os.homedir(), '.agents', 'skills');
+  const canonicalSkillDir = path.join(resolvedSkillRoot, 'claude-mem');
+  const legacySkillDir = path.join(resolvedSkillRoot, LEGACY_CODEX_SKILL_NAME);
 
-  validateCodexInstallPrereqs(paths);
-  ensureDir(paths.codexHome);
-
-  if (runtimePolicy === 'hook-driven') {
-    const hooksJson = readJson(paths.hooksFile, {});
-    hooksJson.hooks = mergeHooks(hooksJson.hooks ?? {}, paths.adapterRoot);
-    writeJson(paths.hooksFile, hooksJson);
+  if (installState.action === 'skip') {
+    return {
+      action: installState.action,
+      skipped: true,
+      codexHome: paths.codexHome,
+      hooksFile: paths.hooksFile,
+      configFile: paths.configFile,
+      mcpServer: paths.mcpServer,
+      runtimeMode,
+      skillDir: canonicalSkillDir,
+      summary: `skipped (v${installState.installedVersion} already installed)`,
+    };
   }
 
-  const configToml = fs.existsSync(paths.configFile)
-    ? fs.readFileSync(paths.configFile, 'utf8')
-    : '';
-  const nextConfig = upsertCodexMcpBlock(configToml, paths.mcpServer);
-  writeText(paths.configFile, nextConfig);
+  validateCodexInstallPrereqs(paths);
+  deps.fileUtils.ensureDir(paths.codexHome);
 
-  uninstallSharedSkill({
-    packageRoot: paths.packageRoot,
-    skillRoot: options.skillRoot,
-    sourceSkillName: 'claude-mem',
-    targetSkillName: LEGACY_CODEX_SKILL_NAME,
-  });
+  const snapshot = captureSnapshot([
+    paths.hooksFile,
+    paths.configFile,
+    canonicalSkillDir,
+    legacySkillDir,
+  ]);
 
-  const skillPaths = installSharedSkill({
-    packageRoot: paths.packageRoot,
-    skillRoot: options.skillRoot,
-    skillName: 'claude-mem',
-  });
+  try {
+    if (runtimePolicy === 'hook-driven') {
+      const hooksJson = deps.fileUtils.readJson(paths.hooksFile, {});
+      hooksJson.hooks = mergeHooks(hooksJson.hooks ?? {}, paths.adapterRoot);
+      deps.fileUtils.writeJson(paths.hooksFile, hooksJson);
+    }
 
-  return {
-    codexHome: paths.codexHome,
-    hooksFile: paths.hooksFile,
-    configFile: paths.configFile,
-    mcpServer: paths.mcpServer,
-    runtimeMode,
-    skillDir: skillPaths.targetDir,
-    summary: summarizeInstallMode({
-      adapter: provider.adapter,
-      platform: options.platform,
-    }),
-  };
+    const configToml = fs.existsSync(paths.configFile)
+      ? fs.readFileSync(paths.configFile, 'utf8')
+      : '';
+    const nextConfig = upsertCodexMcpBlock(configToml, paths.mcpServer);
+    deps.fileUtils.writeText(paths.configFile, nextConfig);
+
+    deps.skillUtils.uninstallSharedSkill({
+      packageRoot: paths.packageRoot,
+      skillRoot: options.skillRoot,
+      sourceSkillName: 'claude-mem',
+      targetSkillName: LEGACY_CODEX_SKILL_NAME,
+    });
+
+    const skillPaths = deps.skillUtils.installSharedSkill({
+      packageRoot: paths.packageRoot,
+      skillRoot: options.skillRoot,
+      skillName: 'claude-mem',
+    });
+
+    writeInstalledVersion(paths.codexHome, currentVersion);
+
+    return {
+      action: installState.action,
+      skipped: false,
+      codexHome: paths.codexHome,
+      hooksFile: paths.hooksFile,
+      configFile: paths.configFile,
+      mcpServer: paths.mcpServer,
+      runtimeMode,
+      skillDir: skillPaths.targetDir,
+      summary: summarizeInstallMode({
+        adapter: provider.adapter,
+        platform: options.platform,
+      }),
+    };
+  } catch (error) {
+    restoreSnapshot(snapshot);
+    throw error;
+  }
 }
 
 async function main() {

@@ -9,6 +9,7 @@ const {
   writeText,
 } = require('../shared/file-utils.js');
 const { uninstallSharedSkill } = require('../shared/skill-utils.js');
+const { removeInstalledVersion } = require('../../core/installer-state.js');
 const {
   resolveCodexPaths,
   removeCodexMcpBlock,
@@ -58,6 +59,7 @@ async function uninstallCodexAdapter(options = {}) {
     sourceSkillName: 'claude-mem',
     targetSkillName: 'codex-mem',
   });
+  removeInstalledVersion(paths.codexHome);
 
   return { removed: true };
 }

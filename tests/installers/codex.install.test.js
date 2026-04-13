@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { readInstalledVersion, writeInstalledVersion } = require('../../core/installer-state.js');
 
 function makeTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'claude-mem-plugin-install-'));
@@ -311,4 +312,105 @@ test('codex installer fails fast when upstream worker lacks codex provider suppo
     }),
     /does not yet advertise Codex provider support/i
   );
+});
+
+test('codex installer writes the version marker after successful install', async () => {
+  const tempDir = makeTempDir();
+  const codexHome = path.join(tempDir, '.codex');
+  const skillRoot = path.join(tempDir, '.agents', 'skills');
+  const packageRoot = path.join(__dirname, '..', '..');
+  const upstreamPaths = writeFakeUpstream(tempDir);
+  const { installCodexAdapter } = require('../../installers/codex/install.js');
+
+  const result = await installCodexAdapter({
+    platform: 'darwin',
+    packageRoot,
+    codexHome,
+    skillRoot,
+    upstreamPaths,
+    version: '0.1.4',
+  });
+
+  assert.equal(result.action, 'install');
+  assert.equal(readInstalledVersion(codexHome), '0.1.4');
+});
+
+test('codex installer skips when the installed version matches', async () => {
+  const tempDir = makeTempDir();
+  const codexHome = path.join(tempDir, '.codex');
+  const skillRoot = path.join(tempDir, '.agents', 'skills');
+  const packageRoot = path.join(__dirname, '..', '..');
+  const upstreamPaths = writeFakeUpstream(tempDir);
+  const { installCodexAdapter } = require('../../installers/codex/install.js');
+
+  fs.mkdirSync(codexHome, { recursive: true });
+  writeInstalledVersion(codexHome, '0.1.4');
+
+  const result = await installCodexAdapter({
+    platform: 'darwin',
+    packageRoot,
+    codexHome,
+    skillRoot,
+    upstreamPaths,
+    version: '0.1.4',
+  });
+
+  assert.equal(result.skipped, true);
+  assert.equal(result.action, 'skip');
+});
+
+test('codex installer rolls back config when shared-skill copy fails', async () => {
+  const tempDir = makeTempDir();
+  const codexHome = path.join(tempDir, '.codex');
+  const skillRoot = path.join(tempDir, '.agents', 'skills');
+  const packageRoot = path.join(__dirname, '..', '..');
+  const upstreamPaths = writeFakeUpstream(tempDir);
+  const { installCodexAdapter } = require('../../installers/codex/install.js');
+
+  fs.mkdirSync(codexHome, { recursive: true });
+  const configFile = path.join(codexHome, 'config.toml');
+  const originalConfig = 'approval_policy = "on-request"\n';
+  fs.writeFileSync(configFile, originalConfig, 'utf8');
+
+  const skillUtils = {
+    uninstallSharedSkill() {},
+    installSharedSkill() {
+      throw new Error('copy failed');
+    },
+  };
+
+  await assert.rejects(
+    installCodexAdapter({
+      platform: 'darwin',
+      packageRoot,
+      codexHome,
+      skillRoot,
+      upstreamPaths,
+      version: '0.1.4',
+      skillUtils,
+    }),
+    /copy failed/
+  );
+
+  assert.equal(fs.readFileSync(configFile, 'utf8'), originalConfig);
+  assert.equal(readInstalledVersion(codexHome), null);
+});
+
+test('codex uninstall removes the version marker', async () => {
+  const tempDir = makeTempDir();
+  const codexHome = path.join(tempDir, '.codex');
+  const skillRoot = path.join(tempDir, '.agents', 'skills');
+  const packageRoot = path.join(__dirname, '..', '..');
+  const { uninstallCodexAdapter } = require('../../installers/codex/uninstall.js');
+
+  fs.mkdirSync(codexHome, { recursive: true });
+  writeInstalledVersion(codexHome, '0.1.4');
+
+  await uninstallCodexAdapter({
+    packageRoot,
+    codexHome,
+    skillRoot,
+  });
+
+  assert.equal(readInstalledVersion(codexHome), null);
 });

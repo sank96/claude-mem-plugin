@@ -30,7 +30,8 @@ async function runBatch(steps) {
 function formatBatchSummary(action, results) {
   const lines = results.map((entry) => {
     if (entry.ok) {
-      const summary = entry.result.summary ?? `${action} completed`;
+      const summary = entry.result.summary
+        ?? (entry.result.skipped ? 'skipped' : `${action} completed`);
       return `[${entry.adapter}] OK: ${summary}`;
     }
 
