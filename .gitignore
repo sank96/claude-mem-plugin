@@ -10,4 +10,5 @@ docs/generated/
 *.log
 *.local
 *.tmp
+*.tgz
 Thumbs.db
