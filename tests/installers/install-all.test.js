@@ -49,6 +49,7 @@ test('install-all installs all three adapters and reports aggregate success', as
       packageRoot,
       claudeHome: path.join(tempDir, '.claude'),
       skillRoot: path.join(tempDir, '.claude', 'skills'),
+      upstreamPaths,
     },
     copilot: {
       platform: 'darwin',
@@ -91,6 +92,7 @@ test('install-all continues after one adapter fails and reports aggregate failur
       packageRoot,
       claudeHome: path.join(tempDir, '.claude'),
       skillRoot: path.join(tempDir, '.claude', 'skills'),
+      upstreamPaths,
     },
     copilot: {
       platform: 'darwin',
@@ -130,6 +132,7 @@ test('uninstall-all removes all three adapters and reports aggregate success', a
       packageRoot,
       claudeHome: path.join(tempDir, '.claude'),
       skillRoot: path.join(tempDir, '.claude', 'skills'),
+      upstreamPaths,
     },
     copilot: {
       platform: 'darwin',
@@ -192,6 +195,7 @@ test('install-all treats skipped adapters as success in the summary and overall 
       packageRoot,
       claudeHome: path.join(tempDir, '.claude'),
       skillRoot: path.join(tempDir, '.claude', 'skills'),
+      upstreamPaths,
     },
     copilot: {
       platform: 'darwin',
